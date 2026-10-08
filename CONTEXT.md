@@ -5,7 +5,7 @@ Sayılar ölçümdür; tahminler "tahmin" diye işaretli.
 
 - Başlangıç: 2026-10-08. Kullanıcı: studio@rastcreative.com (Türkçe, kısa ve net yazar)
 - Hedef platformlar: Instagram Reels, TikTok, YouTube Shorts (üçü de 1080×1920)
-- Durum: 3 pilot format üretildi (`teslim/`), kullanıcı geri bildirimi bekleniyor
+- Durum: 12 format teslim edildi (`teslim/`, açıklamalar `teslim/ACIKLAMALAR.md`), kullanıcı geri bildirimi bekleniyor
 
 ---
 
@@ -45,21 +45,47 @@ Bundan çıkan mekanikler (her yeni formatta kontrol listesi):
 6. **Ses** tatmin edici ve olaya bağlı (her çarpışma bir nota/tık).
 7. **Döngü**: son → baş geçişi yumuşak, tekrar izlenme. Sonda boş ekran bekletme (izleyici kaybı).
 
-## 3. Formatlar (pilot)
+## 3. Formatlar ve geri bildirim
 
-| | Format | Mekanik | Seçilen | Ölçülen tempo |
+### Kullanıcı geri bildirimi (tur 1)
+- **A ve B iyi**, **C ("1 Ball VS 5000 Balls" bardağa döküm) kötü** → çıkarıldı (git geçmişinde `formats/pour.py`).
+  Nedeni söylenmedi. Ölçülen kusurları: kademe başlarında ~1 sn sessiz/boş ekran, yoğun kademeler 10 topluk kademeden
+  sessizdi, her kademede sahne sıfırlanıyor (birikim yok). Benzer "kademeli döküm" formatından kaçın; sorulabilir.
+- **Kanca cümlesi sürekli ekranda kalsın** → `lib/hud.py`, tüm formatlarda y=300'de baştan sona.
+- "10 tane daha kreatif" istendi → 10 yeni format üretildi (aşağıda 03–12).
+
+### Teslim edilenler
+
+| # | Dosya / kod | Mekanik | Tohum | Ölçülen tempo |
 |---|---|---|---|---|
-| A | `formats/multiply.py` "Every bounce = +1 ball" | Beyaz ana top her çarpışmada arenaya +1 top ekler; ana top her eklemede %1,5 hızlanır; arena dolunca çember kırılır | seed 3 | 2 sn:5 · 8:25 · 14:48 · 20:103 · 23:144 · dolu 24,7 · kırılma 25,9 · bitiş 28,1 sn. Ses -13,4 LUFS |
-| B | `formats/rings.py` "Can the ball escape 20 rings?" | 20 iç içe dönen boşluklu halka; top çıktıkça halka parçalanır, nota yükselir, top %3 hızlanır | seed 71 (120 tohum taramasından) | İlk kırılma 0,5 sn, ilk 1,5 sn'de 3 halka, en uzun takılma 3,1 sn, bitiş 23,7 sn. Ses -14,0 LUFS |
-| C | `formats/pour.py` "1 Ball VS 5000 Balls" | Aynı cam bardağa 1 → 10 → 100 → 1000 → 5000 top; renk döküm sırasına göre → gökkuşağı katmanları; son kademede taşma | — | 1000 topta bardak ~%60 dolu, 5000'de 1868 top içeride, gerisi taşıyor |
+| 01 | `multiply.py` "Every bounce = +1 ball" | Ana top her çarpışmada +1 top, %1,5 hızlanır; dolunca çember kırılır | 3 | 2 sn:5 · 14:48 · 23:144 · dolu 24,7 · kırılma 25,9 |
+| 02 | `rings.py` "Can the ball escape 20 rings?" | Dönen boşluklu halkalar, her kırılmada nota yükselir | 71 | ilk kırılma 0,5 sn, en uzun takılma 3,1 sn, bitiş 23,7 |
+| 03 | `pendulum.py` "Wait until they line up again" | 18 sarkaç, T=27 sn'de (20+i) salınım; geri sayım; başı = sonu (döngü) | — | analitik |
+| 04 | `laser.py` "1 laser inside a heart-shaped mirror" | Kalp aynada ışın, kalıcı iz; sekme hızı üstel (τ=4 sn) | — | 3000 sekme / 24 sn |
+| 05 | `grow.py` "Every bounce, the ball gets bigger" | Her sekmede r×1,035, r0=40 | 7 | 69 sekme, dolma 21,0 sn |
+| 06 | `galton.py` "400 balls. Will they make a bell curve?" | Kinematik Galton (p=0,5), top varacağı bölmenin renginde, sonda normal eğri | 5 | bölmeler 8·19·58·69·84·79·52·24·7 |
+| 07 | `heptagon.py` "20 balls. 1 tiny exit." | Dönen yedigen (1,35 rad/s), 150 px açıklık | 27 | bitiş 23,0, en uzun bekleme 4,3 sn |
+| 08 | `colorwar.py` "4 colors. Only 1 survives." | Pong Wars + büyük bölge = hızlı top + pay arttıkça yeni top; <16 kare elenir | 9 | elemeler 19,9 / 22,0 / 24,0 |
+| 09 | `breakout.py` "Every brick = +1 ball" | Her kırılan tuğla → fırlatıcıdan +1 top; tuğla canı alt 1 → üst ~17 | 4 | temizlenme 21,9 sn, 211 top |
+| 10 | `survivor.py` "Which number survives?" | 12 numaralı top, dönen kırmızı lazer yayı (zamanla uzar) değeni eler | 34 | ilk eleme 1,7, bitiş 23,9, en uzun ara 4,8 |
+| 11 | `marble_race.py` "Which color wins?" | 8 misket, parkur (rampa, çivi, pervane, tampon, huni), kamera lideri izler, solda sıralama haritası | 4 | finiş 19,3, 10 liderlik değişimi, ikinciyle fark 0,03 sn |
+| 12 | `domino.py` "Domino #1: 1 cm. Domino #22: 5.5 m." | Her domino 1,35×; gerçek ölçek (mm), yavaş çekim g×0,3; kamera uzaklaşır | — | son domino 20,5 sn'de yerde |
 
-Tempo ayarı öğrenimleri:
-- A: "her topun her çarpışması +1" üstel büyür (6 sn'de 400 top); "sadece ana top" doğrusal kalır (30 sn'de 60).
-  Çözüm: ana top + hızlanma + büyük toplar (r=26). Arena doldukça çarpışma sıklaşıyor → doğal ivme.
-- B: halka aralığı top çapından küçükse (ilk denemede 17 px aralık, 26 px top) top bir sonraki halkanın içinde doğar ve
-  hepsi zincirleme kırılır. Kırılma eşiği "merkez halka çizgisini geçti" + aralık 20 px, top r=11 ile çözüldü.
-  Boşluk 0,62 rad iken takılmalar 10 sn'ye çıkıyordu → 0,95 rad ve daha hızlı dönüş.
-- Tohum taraması (B): `--search N` render etmeden simüle eder, süre 22–34 sn ve en uzun takılması en kısa olanları sıralar.
+### Tempo/fizik öğrenimleri (tekrar yaşamamak için)
+- **Tohum taraması her rastgele formatta şart** (`--search N`): render etmeden simüle et, süre 20–30 sn ve en uzun
+  "olaysız" aralığı en kısa olanı seç. Hedef: ilk olay < 2 sn, en uzun boşluk < 5 sn, bitiş 20–28 sn.
+- A: "her topun her çarpışması +1" üstel (6 sn'de 400); "sadece ana top" doğrusal → ana top + hızlanma + büyük top.
+- B: halka aralığı > top çapı olmalı; kırılma "merkez çizgiyi geçti" ile ölçülmeli.
+- 05: r0=16 ile ilk 12 sn top %4→%11 (sıkıcı açılış) → r0=40.
+- 06: pymunk Galton çan vermedi (huni 2,6 çapta kemer yaptı; geniş huni kenardan kaydırıp iki tepe yaptı; çivi aralığı
+  top çapına göre geniş olunca dağılım düz). Kinematik çözüm doğru ve hızlı.
+- 07: kaçış "merkeze uzaklık" ile ölçülemez (üstten çıkan top dış kenarda sekiyor) → çokgen dışı testi. 30 top / 92 px
+  açıklıkta son toplar 36 sn'de çıkamadı → 20 top, 150 px, v_floor 650.
+- 08: saf Pong Wars 36 sn'de hiç eleme vermedi (paylar %22–29) → kartopu kuralları.
+- 09: yeni top kırılan tuğlada doğunca duvar 1,4 sn'de zincirleme çöktü → fırlatıcıdan çıkış + tuğla canı.
+- 10: lazer 0,45→1,7 rad iken 7–13 sn'de bitti → 0,16→0,75 rad, ω=0,75.
+- 11: tampon rengi bir misket rengiyle aynı olmamalı (pembe tampon/PINK karıştı → beyaz halka).
+- 12: ilk dominoya dönüş vermek yetmez (alt köşe zemine gömülür) → tepeden yatay darbe.
 
 ## 4. Hat
 
@@ -77,8 +103,7 @@ formats/<f>.py:  simülasyon (pymunk, kare başına 3–4 alt adım) → kare li
 | İş | Ölçüm |
 |---|---|
 | 2D kare (170 top, parıltı, yazı) | 221 ms → optimizasyonla **137 ms** (parıltı yarım→çeyrek çözünürlük 68→17 ms; yazı gölgesi önbellek 24→~0 ms) |
-| A render (1797 kare, ilk sürüm) | 5 dk 58 sn |
-| B render (1576 kare) | 3 dk 38 sn |
+| Format başına render (60 fps, 20–28 sn) | 2,7–5 dk (Galton 162 sn, pendulum 314 sn; 2–3 iş paralel koşarken) |
 | Blender 4.5 Cycles CPU, 4 çekirdek, karpuz 60 parça | 1080×1920 32 örnek **99 sn/kare**; 540×960 16 örnek 15 sn/kare |
 | → 25 sn × 30 fps foto-gerçekçi 3D bu konteynerde | ~20 saat. Pratik değil → RTX'te render (tahmin: video başına ~1 saat Cycles, EEVEE ile dakikalar) |
 
@@ -93,7 +118,7 @@ Bilinen kusurları: beyaz kabuk bandı kalın, zemin-arka plan çizgisi görün�
 
 ## 7. Açık işler
 
-1. Kullanıcıdan 3 pilot için geri bildirim (hangi format, tempo, ses).
+1. Kullanıcıdan 12 format için geri bildirim: hangileri seri üretime girsin. C neden kötüydü (sorulabilir).
 2. Tutan formatın varyasyon üreticisi: tek komutla N farklı video (tohum + nesne + renk + kanca listesi).
 3. Format oturunca **skill** yaz: fikir → parametre → simülasyon → render → ses → açıklama.
 4. 3D: kullanıcının RTX makinesi için Blender script'leri (pastel parametre testleri: "Soft 0%", "Hole" tarzı ama özgün sahneler).

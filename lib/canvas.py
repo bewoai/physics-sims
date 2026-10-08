@@ -72,9 +72,13 @@ def _text_image(s, size, weight, shadow, max_w):
 
 
 def text(canvas, s, cx, y, size=96, weight=800, color=skia.Color4f(1, 1, 1, 1), max_w=W - 160, shadow=True):
-    """Ortalanmış beyaz yazı (renk alfası saydamlık olarak uygulanır); sığmazsa küçülür. y = taban çizgisi."""
+    """Ortalanmış yazı; sığmazsa küçülür. y = taban çizgisi. Beyaz dışı renk verilirse yazı o renge boyanır
+    (gölge varsa o da boyanır; renkli yazıda shadow=False kullan)."""
     img, w, pad, base = _text_image(s, size, weight, shadow, max_w)
     p = skia.Paint(AntiAlias=True, Alphaf=color.fA)
+    if (color.fR, color.fG, color.fB) != (1, 1, 1):
+        p.setColorFilter(skia.ColorFilters.Blend(skia.Color4f(color.fR, color.fG, color.fB, 1).toColor(),
+                                                 skia.BlendMode.kSrcIn))
     canvas.drawImage(img, cx - w / 2 - pad, y - base, skia.SamplingOptions(skia.FilterMode.kLinear), p)
 
 

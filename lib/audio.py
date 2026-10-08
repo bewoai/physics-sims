@@ -65,10 +65,10 @@ def synth(kind, midi=60, seed=0):
         t = np.arange(n) / SR
         fr = f * (1 + 0.9 * np.exp(-t / 0.012))
         return np.sin(2 * np.pi * np.cumsum(fr) / SR) * _env(n, 0.025, 0.001)
-    if kind == "thud":                       # yumuşak düşme
+    if kind == "thud":                       # yumuşak düşme; perde midi ile ölçeklenir (40 = varsayılan)
         n = int(SR * 0.25)
         t = np.arange(n) / SR
-        fr = 55 + 140 * np.exp(-t / 0.03)
+        fr = (55 + 140 * np.exp(-t / 0.03)) * hz(midi) / hz(40)
         return (np.sin(2 * np.pi * np.cumsum(fr) / SR) * _env(n, 0.07, 0.001)
                 + 0.15 * _lp(_noise(n, seed), 6) * _env(n, 0.01, 0.0005))
     if kind == "shatter":                    # kırılma: gürültü patlaması + yüksek cam pingleri

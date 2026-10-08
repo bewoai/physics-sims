@@ -113,7 +113,9 @@ def render(balls, fill, t_curve, out_dir, hook=None):
     vid = os.path.join(out_dir, "video.mp4")
     rd = canvas.Renderer(vid, glow=0.5, glow_sigma=10)
     nb = ROWS + 1
-    cols = [paint(hsv(0.85 * m / (nb - 1), 0.75, 1.0)) for m in range(nb)]
+    used = [m for m in range(nb) if fill[m]]
+    lo, hi = used[0], used[-1]          # renkleri dolu bölmelere yay (yoksa sadece sarı-yeşil-mavi kalıyordu)
+    cols = [paint(hsv(0.85 * min(1, max(0, (m - lo) / max(1, hi - lo))), 0.75, 1.0)) for m in range(nb)]
     peg_p = paint(skia.Color4f(0.85, 0.9, 1.0, 0.9))
     wall_p = paint(skia.Color4f(0.85, 0.9, 1.0, 0.55), stroke=4)
     # normal eğri: Binom(ROWS, 0.5) → σ = DX·√ROWS/2; tepe yüksekliği en dolu bölmeye göre
