@@ -211,10 +211,12 @@ def stats(sim, frames, shattered_at):
 # ---------------------------------------------------------------- çizim
 def render(frames, out_dir, hook="Every bounce = +1 ball"):
     import skia
-    from lib.canvas import paint, text, hsv
+    from lib.canvas import paint, hsv
+    from lib.hud import hud, Pop
     os.makedirs(out_dir, exist_ok=True)
     vid = os.path.join(out_dir, "video.mp4")
     rd = canvas.Renderer(vid, glow=0.85, glow_sigma=12)
+    pop = Pop()
     trail = []
     shatter_t = None
     for f in frames:
@@ -251,12 +253,7 @@ def render(frames, out_dir, hook="Every bounce = +1 ball"):
 
         def overlay(c):
             n = f["count"] + 1          # ana top dahil
-            hook_a = 1.0 if t < 3.0 else max(0.0, 1 - (t - 3.0) / 0.5)
-            if hook_a > 0:
-                text(c, hook, W / 2, 300, size=62, weight=800, color=skia.Color4f(1, 1, 1, hook_a))
-            sz = 150 if shatter_t is None else 150 + 30 * max(0, 1 - (t - shatter_t) / 0.3)
-            text(c, f"{n}", W / 2, 470, size=int(sz), weight=900)
-            text(c, "BALLS", W / 2, 530, size=40, weight=700, color=skia.Color4f(1, 1, 1, 0.6), shadow=False)
+            hud(c, hook, n, "BALLS", pop=pop(n, t))
 
         rd.frame(draw, overlay)
     n = rd.close()

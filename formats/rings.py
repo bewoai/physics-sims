@@ -173,7 +173,9 @@ def search(n, lo=22, hi=34):
 # ---------------------------------------------------------------- çizim
 def render(sim, frames, out_dir, hook=None):
     import skia
-    from lib.canvas import paint, text, hsv
+    from lib.canvas import paint, hsv
+    from lib.hud import hud, Pop
+    pop = Pop()
     hook = hook or f"Can the ball escape {N_RINGS} rings?"
     os.makedirs(out_dir, exist_ok=True)
     vid = os.path.join(out_dir, "video.mp4")
@@ -230,16 +232,11 @@ def render(sim, frames, out_dir, hook=None):
 
         def overlay(c):
             left = N_RINGS - f["cur"]
-            hook_a = 1.0 if t < 3.0 else max(0.0, 1 - (t - 3.0) / 0.5)
-            if hook_a > 0:
-                text(c, hook, W / 2, 300, size=60, weight=800, color=skia.Color4f(1, 1, 1, hook_a))
             if end_t is not None and t >= end_t:
                 k = min(1.0, (t - end_t) / 0.25)
-                text(c, "ESCAPED", W / 2, 490, size=int(110 + 20 * (1 - k)), weight=900,
-                     color=skia.Color4f(1, 1, 1, k))
+                hud(c, hook, "ESCAPED", None, pop=1 - k, big_size=110)
             else:
-                text(c, f"{left}", W / 2, 470, size=150, weight=900)
-                text(c, "RINGS LEFT", W / 2, 530, size=40, weight=700, color=skia.Color4f(1, 1, 1, 0.6), shadow=False)
+                hud(c, hook, left, "RINGS LEFT", pop=pop(left, t))
 
         rd.frame(draw, overlay)
     return vid, rd.close()
