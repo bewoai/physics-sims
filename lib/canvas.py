@@ -27,8 +27,11 @@ def font(weight=800, size=96):
     return _fonts[key]
 
 
+HUE_SHIFT = 0.0          # günlük varyasyon: tüm paleti döndürür (renk adı taşıyan formatlarda 0 kalır)
+
+
 def hsv(h, s=0.85, v=1.0, a=1.0):
-    r, g, b = colorsys.hsv_to_rgb(h % 1.0, s, v)
+    r, g, b = colorsys.hsv_to_rgb((h + HUE_SHIFT) % 1.0, s, v)
     return skia.Color4f(r, g, b, a)
 
 

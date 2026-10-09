@@ -5,7 +5,7 @@ Sayılar ölçümdür; tahminler "tahmin" diye işaretli.
 
 - Başlangıç: 2026-10-08. Kullanıcı: studio@rastcreative.com (Türkçe, kısa ve net yazar)
 - Hedef platformlar: Instagram Reels, TikTok, YouTube Shorts (üçü de 1080×1920)
-- Durum: 12 format teslim edildi (`teslim/`, açıklamalar `teslim/ACIKLAMALAR.md`), kullanıcı geri bildirimi bekleniyor
+- Durum: 12 format teslim edildi (`teslim/`). **Günlük otomatik paylaşım kuruldu** (§8); hesaplar ve Upload-Post bağlantısı kullanıcıda (`auto/KURULUM.md`)
 
 ---
 
@@ -119,7 +119,32 @@ Bilinen kusurları: beyaz kabuk bandı kalın, zemin-arka plan çizgisi görün�
 ## 7. Açık işler
 
 1. Kullanıcıdan 12 format için geri bildirim: hangileri seri üretime girsin. C neden kötüydü (sorulabilir).
+1b. Otomasyon: kullanıcı hesapları açıp Upload-Post'a bağlayacak, GitHub sırlarını girecek (`auto/KURULUM.md`); ilk gerçek
+    paylaşımdan sonra `auto/history.jsonl` ve platform sonuçlarını kontrol et.
 2. Tutan formatın varyasyon üreticisi: tek komutla N farklı video (tohum + nesne + renk + kanca listesi).
 3. Format oturunca **skill** yaz: fikir → parametre → simülasyon → render → ses → açıklama.
 4. 3D: kullanıcının RTX makinesi için Blender script'leri (pastel parametre testleri: "Soft 0%", "Hole" tarzı ama özgün sahneler).
 5. Kapak karesi ve platform açıklamaları her teslimde (`teslim/<video>/caption.md`).
+
+## 8. Otomatik paylaşım (2026-10-09)
+
+Kullanıcı kararları: **tam otomatik** (onaysız), **her platformda günde 1**, yol seçimi bana bırakıldı → **Upload-Post**
+(denetimli; resmi API'lerde TikTok ve YouTube denetimi bitene kadar videolar gizli kalıyor). Hesaplar henüz yok.
+
+```
+.github/workflows/daily.yml   cron 15:43 UTC + elle tetikleme (format, dry_run); sır yoksa zamanlı çalışma atlanır
+auto/daily.py                 format seç (en uzun süredir paylaşılmayan) → tohum tara → render → QA → açıklama → yayın
+auto/formats.py               12 format adaptörü: choose (günlük varyasyon) / check (sadece simülasyon) / make
+auto/qa.py                    1080×1920·60fps·15–35 sn·-16…-12 LUFS·sessizlik ≤1,5 sn·donma ≤3 sn·bitişe ulaşma
+auto/captions.py              format başına şablon + dönen hashtag; YouTube başlığı ≤100 + #shorts
+auto/publish.py               Upload-Post: tek istek, 3 platform, async + durum sorgusu
+auto/history.jsonl            her çalışma (Actions commit'ler); dry_run sırayı ilerletmez
+```
+- Varyasyon: tohum → parametreler (halka 14–20, sarkaç 15–20, Galton 300–450 top / 10–12 sıra, çokgen 6–8 kenar,
+  survivor 10–14 top, domino K 1,3–1,36 / N 20–23 / yavaş çekim, renk savaşında 8 renkten 4'ü), `canvas.HUE_SHIFT`
+  ile palet kaydırma (renk adı olan formatlarda kapalı), kanca ve açıklama şablonları.
+- Kalite eşikleri teslim edilen 12 videoyla kalibre edildi; hepsi geçiyor (en uzun sessizlik domino 1,25 sn).
+- Simülasyon kontrolü 0–4 sn/tohum. Uygun tohum oranı formatlara göre ~%4 (halka) – %80 (çarpışma).
+- Upload-Post: Basic plan gerekli (ücretsizde TikTok yok, 10 yükleme/ay). Limitler: TikTok 15, IG 50, YouTube 10 gönderi/gün.
+- Yapılmadı: performans verisine göre format ağırlığı (izlenme/izlenme süresi). Upload-Post analitiği ya da platform
+  istatistikleri bağlanınca `pick_format` ağırlıklı hale getirilebilir.

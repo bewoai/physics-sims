@@ -1,0 +1,94 @@
+# Günlük paylaşım: her gün 1 yeni video üretir, kontrol eder, TikTok + Instagram Reels + YouTube Shorts'a yükler.
+# Sırlar (Settings → Secrets and variables → Actions): UPLOAD_POST_API_KEY, UPLOAD_POST_USER
+# Sırlar yoksa zamanlanmış çalışma hiçbir şey yapmadan biter; elle çalıştırmada "dry_run" ile önizleme üretilir.
+name: daily-post
+
+on:
+  schedule:
+    - cron: "43 15 * * *"      # 15:43 UTC (TR 18:43, ABD doğu 11:43); üretim ~15-25 dk → yayın ~16:00 UTC
+  workflow_dispatch:
+    inputs:
+      format:
+        description: "Format (boş = sıradaki)"
+        required: false
+        default: ""
+        type: choice
+        options: ["", multiply, rings, pendulum, laser, grow, galton, heptagon, colorwar, breakout, survivor, marble_race, domino]
+      dry_run:
+        description: "Yayınlama, sadece üret (önizleme)"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-post
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    env:
+      UPLOAD_POST_API_KEY: ${{ secrets.UPLOAD_POST_API_KEY }}
+      UPLOAD_POST_USER: ${{ secrets.UPLOAD_POST_USER }}
+    steps:
+      - name: Sırlar var mı
+        id: gate
+        run: |
+          if [ -z "$UPLOAD_POST_API_KEY" ] && [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "Upload-Post sırları yok: zamanlanmış çalışma atlandı." >> "$GITHUB_STEP_SUMMARY"
+            echo "go=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.go == 'true'
+
+      - uses: actions/setup-python@v5
+        if: steps.gate.outputs.go == 'true'
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Kurulum
+        if: steps.gate.outputs.go == 'true'
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q ffmpeg libegl1 libgl1
+          pip install -q -r requirements.txt
+
+      - name: Üret, kontrol et, yayınla
+        id: run
+        if: steps.gate.outputs.go == 'true'
+        run: |
+          ARGS=""
+          if [ -n "${{ inputs.format }}" ]; then ARGS="$ARGS --format ${{ inputs.format }}"; fi
+          if [ "${{ inputs.dry_run }}" = "true" ]; then ARGS="$ARGS --dry-run"; fi
+          python -m auto.daily $ARGS
+
+      - name: Videoyu sakla (14 gün)
+        if: always() && steps.gate.outputs.go == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-${{ github.run_number }}
+          path: |
+            out/daily/*/final.mp4
+            out/daily/*/sheet.jpg
+            out/daily/*/post.json
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: Geçmişi kaydet
+        if: always() && steps.gate.outputs.go == 'true'
+        run: |
+          git config user.name "physics-sims bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add auto/history.jsonl 2>/dev/null || exit 0
+          git diff --cached --quiet && exit 0
+          git commit -q -m "Günlük paylaşım kaydı $(date -u +%F)"
+          for i in 1 2 3; do git pull -q --rebase origin main && git push -q origin HEAD:main && exit 0; sleep 5; done
+          exit 1

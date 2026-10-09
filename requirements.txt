@@ -1,0 +1,5 @@
+numpy==2.5.3
+pymunk==7.3.0
+requests==2.34.2
+skia-python==144.0.post2
+soundfile==0.14.0

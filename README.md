@@ -34,4 +34,7 @@ formats/*.py     her format: simülasyon → kareler → ses olayları
 teslim/          yayınlanacak videolar + platform açıklamaları
 ```
 
+**Günlük otomatik paylaşım** (TikTok + Instagram Reels + YouTube Shorts): `.github/workflows/daily.yml` + `auto/`.
+Kurulum: `auto/KURULUM.md`. Yerelde önizleme: `python3 -m auto.daily --format galton --dry-run`.
+
 Ayrıntılar, ölçümler ve kararlar: `CONTEXT.md`.

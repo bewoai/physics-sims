@@ -26,17 +26,21 @@ OMEGA = 1.35          # 0,85 rad/s ve 92 px açıklıkta 36 sn'de 30 topun en fa
 BALL, WALL = 1, 2
 
 
+SIDES = 7               # günlük varyasyonda 6–8 (set_sides ile)
+
+
 def poly_pts():
-    return [(R * math.cos(2 * math.pi * k / 7 - math.pi / 2), R * math.sin(2 * math.pi * k / 7 - math.pi / 2))
-            for k in range(7)]
+    n = SIDES
+    return [(R * math.cos(2 * math.pi * k / n - math.pi / 2), R * math.sin(2 * math.pi * k / n - math.pi / 2))
+            for k in range(n)]
 
 
 def wall_segments():
     """Yerel koordinatta kenarlar; 0. kenarın ortasında GAP genişliğinde açıklık."""
     p = poly_pts()
     segs = []
-    for k in range(7):
-        a, b = p[k], p[(k + 1) % 7]
+    for k in range(SIDES):
+        a, b = p[k], p[(k + 1) % SIDES]
         if k == 0:
             L = math.dist(a, b)
             f = (L - GAP) / 2 / L
@@ -48,9 +52,15 @@ def wall_segments():
     return segs
 
 
-APOTHEM = R * math.cos(math.pi / 7)
-NORMALS = [(math.cos(2 * math.pi * k / 7 - math.pi / 2 + math.pi / 7), math.sin(2 * math.pi * k / 7 - math.pi / 2 + math.pi / 7))
-           for k in range(7)]
+def set_sides(n):
+    global SIDES, APOTHEM, NORMALS
+    SIDES = n
+    APOTHEM = R * math.cos(math.pi / n)
+    NORMALS = [(math.cos(2 * math.pi * k / n - math.pi / 2 + math.pi / n),
+                math.sin(2 * math.pi * k / n - math.pi / 2 + math.pi / n)) for k in range(n)]
+
+
+set_sides(SIDES)
 
 
 def outside_by(x, y, ang):
