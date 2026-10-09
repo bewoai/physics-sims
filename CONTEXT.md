@@ -145,6 +145,11 @@ auto/history.jsonl            her çalışma (Actions commit'ler); dry_run sıra
   ile palet kaydırma (renk adı olan formatlarda kapalı), kanca ve açıklama şablonları.
 - Kalite eşikleri teslim edilen 12 videoyla kalibre edildi; hepsi geçiyor (en uzun sessizlik domino 1,25 sn).
 - Simülasyon kontrolü 0–4 sn/tohum. Uygun tohum oranı formatlara göre ~%4 (halka) – %80 (çarpışma).
+- Uçtan uca dry-run (2026-10-09, 12 formatın hepsi): hepsi ilk tohumda kaliteden geçti; tarama 1 parti (halka 6,
+  yedigen 2); render 178–281 sn (4 çekirdek, iki iş paralel). Örnek varyasyonlar: yedigen → 8 kenar/16 top,
+  renk savaşı YELLOW/RED/PURPLE/BLUE, domino K=1,3 N=23 (3,2 m) yavaş çekim 0,16.
+- Upload-Post istemcisi sahte HTTP ile denendi (alanlar, multipart, karışık sonuç → "partial"); gerçek hesapla
+  henüz denenmedi — ilk gerçek paylaşımda `auto/history.jsonl` → `result` alanını kontrol et.
 - Upload-Post: Basic plan gerekli (ücretsizde TikTok yok, 10 yükleme/ay). Limitler: TikTok 15, IG 50, YouTube 10 gönderi/gün.
 - Yapılmadı: performans verisine göre format ağırlığı (izlenme/izlenme süresi). Upload-Post analitiği ya da platform
   istatistikleri bağlanınca `pick_format` ağırlıklı hale getirilebilir.
