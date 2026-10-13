@@ -24,8 +24,8 @@ Neden:
 
 ## Profil
 
-Profil fotoğrafı: `story/avatar.py` → dişli kenarlı pul içinde kubbeli yapı silueti. EN sıcak (hardal/kiremit),
-TR serin (deniz yeşili); iki hesap telefonda karışmasın. Yazı yok (daireye küçülünce okunmuyor).
+Profil fotoğrafı: `story/avatar.py` → gravür tarzı pul: kazıma gökyüzü, kubbeli yapı, kırmızı posta damgası.
+Zemin EN mürekkep laciverti, TR damga kırmızısı; iki hesap telefonda karışmasın. Yazı yok (daireye küçülünce okunmuyor).
 
 **EN — Instagram (≤ 150):**
 ```

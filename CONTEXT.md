@@ -172,7 +172,7 @@ story/render.py     zaman çizelgesi, 0,35 sn geçiş, perde jeneriği, kelime k
 story/music.py      prosedürel müzik yatağı (Dm–Bb–Gm–A, ducking) + efektler (damga, Mors bip, perde)
 ```
 Çalıştırma (EN): `venv312/bin/python` ile `tts.narrate(...)` → `out/story/eiffel_en.json`, sonra
-`python3 story/render.py story/episodes/eiffel.json out/story/eiffel_en.json en out/story/eiffel_en_code`.
+`python3 story/render.py story/episodes/eiffel.json out/story/eiffel_en.json en out/story/eiffel_en_gravur`.
 
 Ölçülenler:
 - Kokoro her cümleye ~0,2–0,3 sn kendi sessizliğini ekliyor → kırpılmadan EN 77,7 sn, kırpınca 61,2 sn (speed 1,08).
@@ -191,8 +191,10 @@ Hesaplar (2026-10-13, kullanıcı "adlarını sen bul, captionları yaz" dedi; a
 
 Tasarım dili (kullanıcı: "bit_wonder piksel tarzda, bizim de özgün tarzımız olmalı"): 4 seçenek çizildi ve ölçüldü
 (`story/looks.py`, `story/TASARIM.md`, `teslim/hikaye/tasarim/`): Pul Gravürü (öneri), Seyahat Afişi, Risograf,
-Kâğıt Kesik. Piksel sanatı rakibin tarzı, kullanılmıyor. Kullanıcının seçimi bekleniyor; seçilen tarz draw/scenes'e
-taşınacak.
+Kâğıt Kesik. Piksel sanatı rakibin tarzı, kullanılmıyor. **Kullanıcı Pul Gravürü'nü seçti** → `story/gravur.py`
+(10 sahne + çerçeve + kâğıt etiket altyazı + posta damgası jeneriği; kurallar `story/TASARIM.md` sonu). render.py
+varsayılan tarzı "gravur" (5. argüman "duz" ilk pilotu çizer). Profil fotoğrafları da gravüre uyarlandı.
+Kare çizimi 50–340 ms (gazete sahnesi en ağır: tam ekran çapraz tarama).
 
 Açık:
 1. **Yol 1 (AI görsel):** Google Gemini, Nano Banana 2.1 (kullanıcı seçti). Kullanıcı `GEMINI_API_KEY`'i bulut ortamı

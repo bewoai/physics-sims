@@ -1,6 +1,8 @@
 """Bölüm render'ı (Yol 2): bölüm JSON'u + anlatım (narrate çıktısı) → 1080×1920 30 fps video + miks + kontrol şeridi.
 
-  python story/render.py story/episodes/eiffel.json out/story/eiffel_en.json en out/story/eiffel_en_code
+  python story/render.py story/episodes/eiffel.json out/story/eiffel_en.json en out/story/eiffel_en_gravur [gravur|duz]
+
+Tarz: "gravur" (seri tarzı, story/gravur.py) ya da "duz" (ilk pilot, story/scenes.py).
 """
 import json
 import os
@@ -85,14 +87,17 @@ def draw_caption(c, ch, t, y=1440, size=70):
             x += widths[i] + space
 
 
-def render(ep_path, narr_path, lang, out_dir):
+def render(ep_path, narr_path, lang, out_dir, look="gravur"):
+    from story import gravur as G
+    gv = look == "gravur"
+    scenes = G.SCENES if gv else SCENES
     ep = json.load(open(ep_path))
     narr = json.load(open(narr_path))
     sc, S, total = timeline(ep, narr)
     caps = chunks(narr["words"])
     os.makedirs(out_dir, exist_ok=True)
     vid = os.path.join(out_dir, "video.mp4")
-    rd = canvas.Renderer(vid, bg=(0.07, 0.08, 0.12), glow=0.18, glow_sigma=10, fps=FPS)
+    rd = canvas.Renderer(vid, bg=(0.07, 0.08, 0.12), glow=0.0 if gv else 0.18, glow_sigma=10, fps=FPS)
     alt = skia.Surface(D.W, D.H)
     s1 = S[1]
     n = int(total * FPS)
@@ -103,8 +108,10 @@ def render(ep_path, narr_path, lang, out_dir):
 
         def scene(c, s):
             c.save()
-            SCENES[s["kind"]](c, t - s["start"], s["end"] - s["start"],
-                              {"t": t, "lang": lang, "S": S, "start": s["start"]})
+            if gv:
+                c.clipRect(G.WIN)
+            scenes[s["kind"]](c, t - s["start"], s["end"] - s["start"],
+                              {"t": t, "lang": lang, "S": S, "start": s["start"], "place": ep["place"]})
             c.restore()
 
         def draw(c):
@@ -117,6 +124,9 @@ def render(ep_path, narr_path, lang, out_dir):
                 c.drawImage(alt.makeImageSnapshot(), 0, 0, skia.SamplingOptions(), skia.Paint(Alphaf=D.ease(a)))
 
         def overlay(c):
+            if gv:
+                G.overlay(c, t, fi, {"ep": ep, "lang": lang, "s1": s1, "caps": caps})
+                return
             style.grain(c, D.W, D.H, fi)
             style.vignette(c, D.W, D.H, 0.4)
             # perde jeneriği: 1. cümleden hemen önce kapanır, sonra açılır
@@ -135,8 +145,8 @@ def render(ep_path, narr_path, lang, out_dir):
     rd.close()
 
     # ses: anlatım + müzik yatağı + efektler
-    sfx = [(sc[0]["start"] + 1.25, "thud", 34, 1.0), (sc[0]["start"] + 1.25, "tick", 60, 0.8),
-           (s1 - 0.4, "whoosh", 60, 0.8), (s1 - 0.05, "whoosh", 60, 0.9)]
+    sfx = [(sc[0]["start"] + 1.25, "thud", 34, 1.0), (sc[0]["start"] + 1.25, "tick", 60, 0.8)]
+    sfx += G.sting_sfx(s1) if gv else [(s1 - 0.4, "whoosh", 60, 0.8), (s1 - 0.05, "whoosh", 60, 0.9)]
     for s in sc[1:]:
         sfx.append((s["start"] - 0.1, "whoosh", 60, 0.35))
         if s["kind"] in ("radio", "war"):
@@ -157,5 +167,5 @@ def render(ep_path, narr_path, lang, out_dir):
 if __name__ == "__main__":
     import time
     t0 = time.time()
-    f, total = render(*sys.argv[1:5])
+    f, total = render(*sys.argv[1:6])
     print("çıktı", f, f"{total:.1f} sn", encode.loudness(f), f"render {time.time() - t0:.0f} sn", flush=True)
