@@ -209,7 +209,12 @@ konuyla alakalı kendi müziğini ekle."
   Bölüm JSON'u "music": {"theme", "bpm", "seed", "moods"}. Yeni yerler için tema eklenmeli (İstanbul → makam vb.).
 - **Efekt seviyesi** (kullanıcı: "sfx'ler yüksek"): ölçüldü, konuşma RMS'ine göre en yüksek 50 ms RMS: güm +10,6 dB,
   Mors −5,8, çan −6,1, hışırtı −11,8. Artık `music.SFX_DB` hedefiyle ayarlanıyor: güm −8, çan/tık −14,
-  hışırtı/Mors −16 dB (gain parametresi kullanılmıyor). Kullanıcı yine yüksek derse bu tabloyu kıs.
+  hışırtı/Mors −16 dB; gain artık grup içi kısma (1.0 = hedef). Üst üste binen gruplar hedefi aşıyordu (4 çan
+  birlikte −8,8; Mors dizileri 2,8 sn sürüp 1,9 sn arayla binince −12,7) → çanlar 0.5, Mors dizileri çakışmasız.
+  Miksten ölçülen son değerler (TR ve EN aynı): güm −8,0, çan −14,0, Mors −16,0, hışırtı −17,4 dB.
+  Kullanıcı yine yüksek derse SFX_DB tablosunu kıs.
+- **Siluet pilotu** (out/story/eiffel_{tr,en}_siluet/final.mp4): TR 56,5 sn −14,0 LUFS, EN 62,1 sn −13,7 LUFS;
+  render 469 sn (iki dil paralel); sesi yenilemek AUDIO_ONLY=1 ile ~25 sn.
 
 Açık:
 1. **Yol 1 (AI görsel):** Google Gemini, Nano Banana 2.1 (kullanıcı seçti). Kullanıcı `GEMINI_API_KEY`'i bulut ortamı

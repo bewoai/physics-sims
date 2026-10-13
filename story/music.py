@@ -93,7 +93,8 @@ def _peak_rms(y, win=0.05):
 
 def mix(narr_wav, total, sfx, out_wav, music_db=-21.0, duck_db=-6.0, stems=None, rel_db=-11.0,
         duck_acc_db=-8.0, duck_mel_db=-13.0):
-    """sfx: [(t, kind, midi, gain)] ; kind 'beepseq' → Mors bip dizisi. Seviye SFX_DB'den (gain artık kullanılmıyor).
+    """sfx: [(t, kind, midi, gain)] ; kind 'beepseq' → Mors bip dizisi. Seviye SFX_DB hedefi × gain (1.0 = hedef;
+    üst üste binen efekt grupları için < 1).
     stems verilirse (score.compose: "melody", "acc") eski yatak yerine o çalar: konuşma yokken müzik anlatımın
     rel_db altında; konuşurken eşlik duck_acc_db, melodi duck_mel_db daha kısılır (melodi sesle çakışmasın)."""
     x, sr = sf.read(narr_wav, dtype="float32")
@@ -133,7 +134,7 @@ def mix(narr_wav, total, sfx, out_wav, music_db=-21.0, duck_db=-6.0, stems=None,
             out += v * g * dk[:, None]
     speech_rms = np.sqrt(np.mean(rms[rms > 0.02] ** 2)) if np.any(rms > 0.02) else 0.1
     for t, kind, midi, gain in sfx:
-        tgt = speech_rms * 10 ** (SFX_DB.get(kind, -14.0) / 20)        # efekt seviyesi konuşmaya göre (dB)
+        tgt = speech_rms * 10 ** (SFX_DB.get(kind, -14.0) / 20) * gain  # konuşmaya göre dB; gain: grup içi kısma
         if kind == "beepseq":
             seq, _ = morse_seq()
             g = tgt / _peak_rms(beep(0.21, gain=1.0))

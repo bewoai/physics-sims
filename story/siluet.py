@@ -13,7 +13,7 @@ import numpy as np
 import skia
 
 from story import draw as D
-from story import style
+from story import music, style
 from story.safezone import CX, SAFE
 from story.style import C, linear, paint, radial, typeface
 
@@ -686,17 +686,22 @@ def overlay(c, t, fi, ctx):
 def sfx(sc, s1):
     """Ses efektleri: kanca rakamı gümü, sahne geçişi hışırtısı (yumuşak), telsiz/savaşta Mors, uzatmada güm,
     sonda çan pırıltısı. Perde ve gazete şaplağı yok (klasik süs)."""
-    out = [(sc[0]["start"] + 1.25, "thud", 34, 0.9)]
-    for s in sc[1:]:
-        out.append((s["start"] - 0.1, "whoosh", 60, 0.25))
+    seq_len = music.morse_seq()[1] + 0.3                          # Mors dizileri üst üste binmesin (~2,8 sn)
+    out = [(sc[0]["start"] + 1.25, "thud", 34, 1.0)]
+    for i, s in enumerate(sc[1:], 1):
+        out.append((s["start"] - 0.1, "whoosh", 60, 1.0))
         if s["kind"] in ("radio", "war"):
-            out += [(s["start"] + 0.5 + k * 1.9, "beepseq", 0, 0.10) for k in range(3)]
+            end = sc[i + 1]["start"] if i + 1 < len(sc) else s["start"] + 6
+            k = 0
+            while s["start"] + 0.5 + k * seq_len + seq_len < end:
+                out.append((s["start"] + 0.5 + k * seq_len, "beepseq", 0, 1.0))
+                k += 1
         if s["kind"] == "renewal":
-            out.append((s["start"] + 0.9, "thud", 34, 0.8))
+            out.append((s["start"] + 0.9, "thud", 34, 1.0))
         if s["kind"] == "military":
-            out.append((s["start"] + 1.0, "bell", 86, 0.12))
-        if s["kind"] == "today":
-            out += [(s["start"] + 0.3 + 0.12 * q, "bell", m, 0.15) for q, m in enumerate((74, 78, 81, 86))]
+            out.append((s["start"] + 1.0, "bell", 86, 1.0))
+        if s["kind"] == "today":                                  # 4 çan birlikte çınlıyor: tek tek −6 dB
+            out += [(s["start"] + 0.3 + 0.12 * q, "bell", m, 0.5) for q, m in enumerate((74, 78, 81, 86))]
     return out
 
 
