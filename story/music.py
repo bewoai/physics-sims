@@ -80,8 +80,11 @@ def morse_seq(code="·−· ·− −·· ·· −−−", unit=0.07):
     return seq, t
 
 
-def mix(narr_wav, total, sfx, out_wav, music_db=-21.0, duck_db=-6.0):
-    """sfx: [(t, kind, midi, gain)] ; kind 'beepseq' → Mors bip dizisi."""
+def mix(narr_wav, total, sfx, out_wav, music_db=-21.0, duck_db=-6.0, stems=None, rel_db=-11.0,
+        duck_acc_db=-8.0, duck_mel_db=-13.0):
+    """sfx: [(t, kind, midi, gain)] ; kind 'beepseq' → Mors bip dizisi.
+    stems verilirse (score.compose: "melody", "acc") eski yatak yerine o çalar: konuşma yokken müzik anlatımın
+    rel_db altında; konuşurken eşlik duck_acc_db, melodi duck_mel_db daha kısılır (melodi sesle çakışmasın)."""
     x, sr = sf.read(narr_wav, dtype="float32")
     if x.ndim > 1:
         x = x.mean(1)
@@ -104,9 +107,19 @@ def mix(narr_wav, total, sfx, out_wav, music_db=-21.0, duck_db=-6.0):
     duck = 10 ** ((duck_db * act) / 20)
     duck = np.repeat(duck, hop)
     duck = np.pad(duck, (0, n - len(duck)), constant_values=1.0)[:n]
-    b = bed(total)[:n]
-    g = 10 ** (music_db / 20) / (np.sqrt(np.mean(b ** 2)) + 1e-9) * 0.1
-    out += b * g * duck[:, None]
+    if stems is None:
+        b = bed(total)[:n]
+        g = 10 ** (music_db / 20) / (np.sqrt(np.mean(b ** 2)) + 1e-9) * 0.1
+        out += b * g * duck[:, None]
+    else:
+        speech = np.sqrt(np.mean(rms[rms > 0.02] ** 2)) if np.any(rms > 0.02) else 0.1
+        both = sum(np.pad(v, ((0, max(0, n - len(v))), (0, 0)))[:n] for v in stems.values())
+        g = speech * 10 ** (rel_db / 20) / (np.sqrt(np.mean(both ** 2)) + 1e-9)
+        for name, ddb in (("acc", duck_acc_db), ("melody", duck_mel_db)):
+            v = np.pad(stems[name], ((0, max(0, n - len(stems[name]))), (0, 0)))[:n]
+            dk = np.repeat(10 ** ((ddb * act) / 20), hop)
+            dk = np.pad(dk, (0, n - len(dk)), constant_values=1.0)[:n]
+            out += v * g * dk[:, None]
     for t, kind, midi, gain in sfx:
         if kind == "beepseq":
             seq, _ = morse_seq()

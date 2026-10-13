@@ -191,10 +191,20 @@ Hesaplar (2026-10-13, kullanıcı "adlarını sen bul, captionları yaz" dedi; a
 
 Tasarım dili (kullanıcı: "bit_wonder piksel tarzda, bizim de özgün tarzımız olmalı"): 4 seçenek çizildi ve ölçüldü
 (`story/looks.py`, `story/TASARIM.md`, `teslim/hikaye/tasarim/`): Pul Gravürü (öneri), Seyahat Afişi, Risograf,
-Kâğıt Kesik. Piksel sanatı rakibin tarzı, kullanılmıyor. **Kullanıcı Pul Gravürü'nü seçti** → `story/gravur.py`
-(10 sahne + çerçeve + kâğıt etiket altyazı + posta damgası jeneriği; kurallar `story/TASARIM.md` sonu). render.py
-varsayılan tarzı "gravur" (5. argüman "duz" ilk pilotu çizer). Profil fotoğrafları da gravüre uyarlandı.
-Kare çizimi 50–340 ms (gazete sahnesi en ağır: tam ekran çapraz tarama).
+Kâğıt Kesik. Piksel sanatı rakibin tarzı, kullanılmıyor. Kullanıcı önce Pul Gravürü'nü seçti (`story/gravur.py`
+yazıldı), sonra **hepsini reddetti**: "No. 1 gibi klasik süs ekleme, Instagram güvenli alanına çok dikkat et, arkaya
+konuyla alakalı kendi müziğini ekle."
+- 2. tur (`story/looks2.py`): A Siluet Sinema, B Işık Çizgisi; çerçevesiz, tam ekran, 6 sn hareketli örnek + müzik.
+  Kullanıcının seçimi bekleniyor. render.py varsayılanı yine "duz".
+- **Güvenli alan** `story/safezone.py`: SAFE x 92–920, y 285–1440 (kullanıcının IG ekran görüntüsünden ölçüldü: sağ
+  ikonlar x 938–1004 / y 869–1857, alt yazı y ≥ 1718, yanlardan 34 px kırpma; + Meta 896×1264 alanı, TikTok/Shorts
+  alt payı). `draw_qa()` arayüz alanlarını kırmızı boyar; her yeni tarz bununla kontrol edilir.
+- **Konu müziği** `story/score.py` (kural tabanlı beste, tüm çalgılar sentez, telifsiz): Paris → valse musette
+  (akordeon üç dil ±7 sent, um-pa-pa, 150 bpm). Sahneye göre ruh hali (gizem/vals/pizzicato/gerilim/yükseliş/final),
+  değişim ölçü başına oturur. Miks: konuşma yokken müzik anlatımın 11 dB altında; konuşurken eşlik −8, melodi −13 dB
+  daha. Doğrulama (dinleyemiyorum): ölçü başına kroma akorla uyumlu, melodide gam dışı nota yok (bulunan 2 hata
+  düzeltildi), çekme seslerinin kesik sonu tık yapıyordu → sönümle bitiş, 40 Hz altı süzüldü (enerji payı %0,03).
+  Bölüm JSON'u "music": {"theme", "bpm", "seed", "moods"}. Yeni yerler için tema eklenmeli (İstanbul → makam vb.).
 
 Açık:
 1. **Yol 1 (AI görsel):** Google Gemini, Nano Banana 2.1 (kullanıcı seçti). Kullanıcı `GEMINI_API_KEY`'i bulut ortamı

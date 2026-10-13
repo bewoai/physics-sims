@@ -1,8 +1,21 @@
 # Tasarım dili (2026-10-13)
 
-**Karar: Pul Gravürü** (kullanıcı seçti). Uygulama: `story/gravur.py` (seri tarzı; render varsayılanı).
+**1. tur sonucu:** önce Pul Gravürü seçildi (`story/gravur.py` yazıldı), sonra kullanıcı: "Beğenemedim hiçbirini.
+No. 1 gibi klasik süs ekleme, Instagram güvenli alanına çok dikkat et, arkaya konuyla alakalı kendi müziğini ekle."
+→ 2. tur aşağıda. Gravür kodu duruyor ama varsayılan değil.
 
-## Seçenekler
+## 2. tur (çerçevesiz, sinematik; `story/looks2.py`, `teslim/hikaye/tasarim2/`)
+
+Kural: çerçeve, rozet, numara, seri adı gibi süs yok; tam ekran sahne; yazı yalnız `story/safezone.py` SAFE içinde
+(x 92–920, y 285–1440; ölçüm ve kaynaklar dosyada). Her tarzın 6 sn hareketli örneği konu müziğiyle.
+- **A · Siluet Sinema:** arkadan ışıklı karanlık siluetler, ay/güneş önünde simge yapı, ışık huzmeleri, sis
+  katmanları (hava perspektifi), ışıkta toz, soğuk ay ışığı + sıcak pencere ışığı. Kafesten ışık sızar.
+  Hareket: yavaş itme, katman paralaksı, huzme salınımı, toz. Kare: ~350 ms.
+- **B · Işık Çizgisi:** karanlıkta kendini çizen parlak çizgiler (bloom), çizim ucunda kıvılcım, neon rakam
+  titreyerek yanar. Kare: ~530 ms.
+
+## 1. tur
+
 
 Kullanıcı: "Bit_wonder piksel tarzda yapmış, bizim de özgün bir tarzımız olmalı." Aynı an (Eyfel kancası) dört
 tarzda çizildi: `python3 story/looks.py out/story/looks` → `teslim/hikaye/tasarim/karsilastirma.jpg`.

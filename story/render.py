@@ -2,7 +2,8 @@
 
   python story/render.py story/episodes/eiffel.json out/story/eiffel_en.json en out/story/eiffel_en_gravur [gravur|duz]
 
-Tarz: "gravur" (seri tarzı, story/gravur.py) ya da "duz" (ilk pilot, story/scenes.py).
+Tarz: "duz" (ilk pilot, story/scenes.py; varsayılan) ya da "gravur" (story/gravur.py; kullanıcı beğenmedi, 2026-10-13).
+Müzik: bölüm JSON'unda "music" varsa story/score.py konu müziği çalar. AUDIO_ONLY=1: video.mp4 varsa yalnız sesi yeniler.
 """
 import json
 import os
@@ -15,7 +16,7 @@ sys.path.insert(0, ROOT)
 
 from lib import canvas, encode  # noqa: E402
 from story import draw as D  # noqa: E402
-from story import music, style  # noqa: E402
+from story import music, score, style  # noqa: E402
 from story.brand import BRAND  # noqa: E402
 from story.scenes import SCENES  # noqa: E402
 from story.style import CREAM, INK, MUSTARD, SANS_K, typeface  # noqa: E402
@@ -87,7 +88,7 @@ def draw_caption(c, ch, t, y=1440, size=70):
             x += widths[i] + space
 
 
-def render(ep_path, narr_path, lang, out_dir, look="gravur"):
+def render(ep_path, narr_path, lang, out_dir, look="duz"):
     from story import gravur as G
     gv = look == "gravur"
     scenes = G.SCENES if gv else SCENES
@@ -97,10 +98,12 @@ def render(ep_path, narr_path, lang, out_dir, look="gravur"):
     caps = chunks(narr["words"])
     os.makedirs(out_dir, exist_ok=True)
     vid = os.path.join(out_dir, "video.mp4")
-    rd = canvas.Renderer(vid, bg=(0.07, 0.08, 0.12), glow=0.0 if gv else 0.18, glow_sigma=10, fps=FPS)
+    audio_only = os.environ.get("AUDIO_ONLY") == "1" and os.path.exists(vid)     # sesi yenile, kareleri çizme
+    rd = None if audio_only else canvas.Renderer(vid, bg=(0.07, 0.08, 0.12), glow=0.0 if gv else 0.18,
+                                                 glow_sigma=10, fps=FPS)
     alt = skia.Surface(D.W, D.H)
     s1 = S[1]
-    n = int(total * FPS)
+    n = 0 if audio_only else int(total * FPS)
     for fi in range(n):
         t = fi / FPS
         i = next(k for k, s in enumerate(sc) if s["start"] <= t < s["end"] or k == len(sc) - 1)
@@ -142,7 +145,8 @@ def render(ep_path, narr_path, lang, out_dir, look="gravur"):
                     break
 
         rd.frame(draw, overlay)
-    rd.close()
+    if rd:
+        rd.close()
 
     # ses: anlatım + müzik yatağı + efektler
     sfx = [(sc[0]["start"] + 1.25, "thud", 34, 1.0), (sc[0]["start"] + 1.25, "tick", 60, 0.8)]
@@ -158,7 +162,13 @@ def render(ep_path, narr_path, lang, out_dir, look="gravur"):
             sfx.append((s["start"] + 0.1, "thud", 46, 0.6))
         if s["kind"] == "today":
             sfx += [(s["start"] + 0.3 + 0.12 * q, "bell", m, 0.18) for q, m in enumerate((74, 78, 81, 86))]
-    wav = music.mix(narr["wav"], total, sfx, os.path.join(out_dir, "mix.wav"))
+    stems = None
+    if "music" in ep:
+        mu = ep["music"]
+        moods = {**score.MOODS, **mu.get("moods", {})}
+        spans = [(s["start"], moods.get(s["kind"], "waltz")) for s in sc]
+        stems = score.compose(spans, total, mu.get("theme", "musette"), mu.get("bpm", 150), mu.get("seed", 3))
+    wav = music.mix(narr["wav"], total, sfx, os.path.join(out_dir, "mix.wav"), stems=stems)
     final = encode.mux(vid, wav, os.path.join(out_dir, "final.mp4"))
     encode.contact_sheet(final, os.path.join(out_dir, "sheet.jpg"), every=total / 16, cols=8, rows=2)
     return final, total

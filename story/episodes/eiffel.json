@@ -108,5 +108,12 @@
       "kind": "today",
       "note": "Bugünkü kule, ışıklar; kapanış, döngü"
     }
-  ]
+  ],
+  "music": {
+    "theme": "musette",
+    "bpm": 150,
+    "seed": 3,
+    "note": "Paris 1889: valse musette. Ruh halleri sahne türünden (story/score.py MOODS); burada değiştirilebilir.",
+    "moods": {}
+  }
 }
