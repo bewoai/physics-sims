@@ -89,7 +89,7 @@ class Renderer:
     """Sahne `draw(canvas)` ile çizilir; parıltı katmanı çeyrek çözünürlükte bulanıklaştırılıp toplanır
     (yarım çözünürlükte 68 ms/kare, çeyrekte 17 ms; yumuşak parıltıda fark görünmüyor)."""
 
-    def __init__(self, out_path, bg=(0.035, 0.035, 0.05), glow=0.9, glow_sigma=12, crf=16):
+    def __init__(self, out_path, bg=(0.035, 0.035, 0.05), glow=0.9, glow_sigma=12, crf=16, fps=FPS):
         self.bg = skia.Color4f(*bg, 1)
         self.glow, self.glow_sigma = glow, glow_sigma
         self.scene = skia.Surface(W, H)
@@ -98,7 +98,7 @@ class Renderer:
         self.buf = np.empty((H, W, 4), np.uint8)
         self.n = 0
         self.proc = subprocess.Popen(
-            ["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "bgra", "-s", f"{W}x{H}", "-r", str(FPS),
+            ["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "bgra", "-s", f"{W}x{H}", "-r", str(fps),
              "-i", "-", "-c:v", "libx264", "-preset", "medium", "-crf", str(crf), "-pix_fmt", "yuv420p",
              "-color_primaries", "bt709", "-color_trc", "bt709", "-colorspace", "bt709", out_path],
             stdin=subprocess.PIPE)

@@ -4,7 +4,11 @@ Neden cümle cümle: EMA Lightning tek parça metinde cümle aralarına ~0,3 sn 
 için kısa. Cümleleri ayrı üretip aralara noktalamaya göre sessizlik koyuyoruz; "||" işareti uzun vurgu duraklaması.
 
 TR: EMA Lightning (Apache-2.0, tek ses, kelime zamanlarını kendisi veriyor).
-EN: araştırma sonucuna göre eklenecek (aynı arayüz: synth(sentences) -> [(audio, sr, [(word, s, e)])]).
+EN: Kokoro-82M (Apache-2.0; 4 vCPU'da RTF ~0,6; kelime zamanlarını kendisi veriyor). Python < 3.13 ister → venv312.
+
+Telaffuz işaretlemesi: {gösterilen|okunan}. Altyazıda ilk kısım, seste ikinci kısım kullanılır; iki kısım aynı
+sayıda kelime içermeli (ör. {Gustave Eiffel|Güstav Eyfel}). Kokoro için okunan kısım misaki sözdizimi olabilir:
+{Panthéon|[Panthéon](/pˈænθiən/)}.
 """
 import re
 
@@ -14,6 +18,17 @@ import soundfile as sf
 PAUSE = {".": 0.42, "?": 0.5, "!": 0.5, ":": 0.32, ";": 0.3, "…": 0.6}
 BEAT = 0.55            # "||" işaretine eklenen ek duraklama
 LEAD, TAIL = 0.15, 0.6
+
+
+MARK = re.compile(r"\{([^|{}]*)\|([^{}]*)\}")
+
+
+def show(s):
+    return MARK.sub(r"\1", s)
+
+
+def say(s):
+    return MARK.sub(r"\2", s)
 
 
 def split_beats(script):
@@ -44,7 +59,49 @@ class EmaTR:
                 for r in res]
 
 
-BACKENDS = {"tr": EmaTR}
+class KokoroEN:
+    sr = 24000
+
+    def __init__(self, voice="am_michael", speed=1.0):
+        import torch
+        from kokoro import KPipeline
+        torch.set_num_threads(4)
+        self.voice, self.speed = voice, speed
+        self.pipe = KPipeline(lang_code=voice[0], repo_id="hexgrad/Kokoro-82M")   # 'a' ABD, 'b' İngiliz
+
+    def synth(self, sentences):
+        out = []
+        for text in sentences:
+            chunks, words, off = [], [], 0.0
+            for r in self.pipe(text, voice=self.voice, speed=self.speed, split_pattern=r"\n+"):
+                audio = r.audio.cpu().numpy().astype(np.float32)
+                for t in r.tokens or []:
+                    if t.start_ts is None or t.end_ts is None or not re.search(r"[A-Za-z0-9]", t.text):
+                        continue
+                    words.append((t.text, off + t.start_ts, off + t.end_ts))
+                chunks.append(audio)
+                off += len(audio) / self.sr
+            out.append((np.concatenate(chunks), self.sr, words))
+        return out
+
+
+BACKENDS = {"tr": EmaTR, "en": KokoroEN}
+
+
+def trim(audio, sr, floor_db=-42.0, margin=0.03):
+    """Cümle sesinin baş/son sessizliğini kırpar (Kokoro her cümleye ~0,2–0,3 sn ekliyordu; duraklamayı biz koyuyoruz).
+    Döner: (kırpılmış ses, baştan kırpılan saniye)."""
+    n = int(sr * 0.01)
+    k = len(audio) // n
+    if k == 0:
+        return audio, 0.0
+    rms = np.sqrt(np.mean(audio[:k * n].reshape(k, n) ** 2, axis=1)) + 1e-9
+    loud = np.where(20 * np.log10(rms / (np.max(np.abs(audio)) + 1e-9)) > floor_db)[0]
+    if len(loud) == 0:
+        return audio, 0.0
+    a = max(0, loud[0] * n - int(margin * sr))
+    b = min(len(audio), (loud[-1] + 1) * n + int(margin * sr))
+    return audio[a:b], a / sr
 
 
 def narrate(script, lang, out_wav, **kw):
@@ -52,15 +109,19 @@ def narrate(script, lang, out_wav, **kw):
     Kelimeler metindeki yazımla (büyük harf, noktalama) verilir; zamanlar TTS'ten."""
     beats = split_beats(script)
     eng = BACKENDS[lang](**kw)
-    outs = eng.synth([s for s, _ in beats])
+    outs = eng.synth([say(s) for s, _ in beats])
     sr = outs[0][1]
     pieces = [np.zeros(int(LEAD * sr), np.float32)]
     t = LEAD
     words, sents = [], []
-    for (text, beat), (audio, _, wts) in zip(beats, outs):
+    for (raw, beat), (audio, _, wts) in zip(beats, outs):
+        text = show(raw)
         toks = text.split()
+        audio, cut = trim(audio, sr)
+        dur_a = len(audio) / sr
         use_src = len(toks) == len(wts)            # sayı tutarsa metindeki yazımı kullan
         for k, (wt, s, e) in enumerate(wts):
+            s, e = min(max(0.0, s - cut), dur_a), min(max(0.0, e - cut), dur_a)
             words.append({"w": toks[k] if use_src else wt, "s": round(t + s, 3), "e": round(t + e, 3)})
         dur = len(audio) / sr
         sents.append({"text": text, "s": round(t, 3), "e": round(t + dur, 3)})
