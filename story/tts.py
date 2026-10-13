@@ -104,6 +104,31 @@ def trim(audio, sr, floor_db=-42.0, margin=0.03):
     return audio[a:b], a / sr
 
 
+def _norm(w):
+    return re.sub(r"[^\wçğıöşüâîû]", "", w.lower().replace("’", "'").replace("'", ""))
+
+
+def align(toks, wts):
+    """Metin kelimelerini TTS kelimelerine eşler. TTS sayıları birden çok kelimeye açabiliyor (EMA: "1889" →
+    "bin sekiz yüz seksen dokuz"); rakam içeren metin kelimesi, bir sonraki metin kelimesine kadar olan TTS
+    kelimelerinin toplam süresini alır. Döner: [(metin kelimesi, başlangıç, bitiş)] ya da eşleşmezse None."""
+    out, j = [], 0
+    for i, tok in enumerate(toks):
+        if j >= len(wts):
+            return None
+        if re.search(r"\d", tok):
+            nxt = _norm(toks[i + 1]) if i + 1 < len(toks) else None
+            k = j + 1
+            while k < len(wts) and (nxt is None or _norm(wts[k][0]) != nxt):
+                k += 1
+            out.append((tok, wts[j][1], wts[k - 1][2]))
+            j = k
+        else:
+            out.append((tok, wts[j][1], wts[j][2]))
+            j += 1
+    return out if j == len(wts) else None
+
+
 def narrate(script, lang, out_wav, **kw):
     """Döner: {"wav", "duration", "words": [{w, s, e}], "sentences": [{text, s, e}]}.
     Kelimeler metindeki yazımla (büyük harf, noktalama) verilir; zamanlar TTS'ten."""
@@ -119,10 +144,13 @@ def narrate(script, lang, out_wav, **kw):
         toks = text.split()
         audio, cut = trim(audio, sr)
         dur_a = len(audio) / sr
-        use_src = len(toks) == len(wts)            # sayı tutarsa metindeki yazımı kullan
-        for k, (wt, s, e) in enumerate(wts):
+        pairs = list(zip(toks, [w[1] for w in wts], [w[2] for w in wts])) if len(toks) == len(wts) else align(toks, wts)
+        if pairs is None:                              # eşleşmedi: TTS'in kendi yazımı (uyarı ver)
+            print(f"  uyarı: altyazı eşleşmedi, TTS yazımı kullanılıyor: {text!r}")
+            pairs = wts
+        for wt, s, e in pairs:
             s, e = min(max(0.0, s - cut), dur_a), min(max(0.0, e - cut), dur_a)
-            words.append({"w": toks[k] if use_src else wt, "s": round(t + s, 3), "e": round(t + e, 3)})
+            words.append({"w": wt, "s": round(t + s, 3), "e": round(t + e, 3)})
         dur = len(audio) / sr
         sents.append({"text": text, "s": round(t, 3), "e": round(t + dur, 3)})
         pieces.append(audio)
