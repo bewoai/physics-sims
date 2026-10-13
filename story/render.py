@@ -1,8 +1,9 @@
 """Bölüm render'ı (Yol 2): bölüm JSON'u + anlatım (narrate çıktısı) → 1080×1920 30 fps video + miks + kontrol şeridi.
 
-  python story/render.py story/episodes/eiffel.json out/story/eiffel_en.json en out/story/eiffel_en_gravur [gravur|duz]
+  python story/render.py story/episodes/eiffel.json out/story/eiffel_en.json en out/story/eiffel_en_siluet [siluet|duz|gravur]
 
-Tarz: "duz" (ilk pilot, story/scenes.py; varsayılan) ya da "gravur" (story/gravur.py; kullanıcı beğenmedi, 2026-10-13).
+Tarz: "siluet" (seri tarzı, story/siluet.py; varsayılan), "duz" (ilk pilot, story/scenes.py), "gravur" (story/gravur.py;
+kullanıcı beğenmedi, 2026-10-13).
 Müzik: bölüm JSON'unda "music" varsa story/score.py konu müziği çalar. AUDIO_ONLY=1: video.mp4 varsa yalnız sesi yeniler.
 """
 import json
@@ -88,10 +89,12 @@ def draw_caption(c, ch, t, y=1440, size=70):
             x += widths[i] + space
 
 
-def render(ep_path, narr_path, lang, out_dir, look="duz"):
-    from story import gravur as G
-    gv = look == "gravur"
-    scenes = G.SCENES if gv else SCENES
+def render(ep_path, narr_path, lang, out_dir, look="siluet"):
+    from story import gravur, siluet
+    mod = {"gravur": gravur, "siluet": siluet}.get(look)            # None: ilk düz pilot (story/scenes.py)
+    gv = mod is not None
+    scenes = mod.SCENES if gv else SCENES
+    win = getattr(mod, "WIN", None)
     ep = json.load(open(ep_path))
     narr = json.load(open(narr_path))
     sc, S, total = timeline(ep, narr)
@@ -110,12 +113,15 @@ def render(ep_path, narr_path, lang, out_dir, look="duz"):
         cur = sc[i]
 
         def scene(c, s):
+            ctx = {"t": t, "lang": lang, "S": S, "start": s["start"], "place": ep["place"], "texts": [],
+                   "strike": None}
             c.save()
-            if gv:
-                c.clipRect(G.WIN)
-            scenes[s["kind"]](c, t - s["start"], s["end"] - s["start"],
-                              {"t": t, "lang": lang, "S": S, "start": s["start"], "place": ep["place"]})
+            if win:
+                c.clipRect(win)
+            scenes[s["kind"]](c, t - s["start"], s["end"] - s["start"], ctx)
             c.restore()
+            if hasattr(mod, "draw_texts"):                          # yazılar kamera dışında (SAFE korunur)
+                mod.draw_texts(c, ctx["texts"], ctx["strike"])
 
         def draw(c):
             scene(c, cur)
@@ -128,7 +134,7 @@ def render(ep_path, narr_path, lang, out_dir, look="duz"):
 
         def overlay(c):
             if gv:
-                G.overlay(c, t, fi, {"ep": ep, "lang": lang, "s1": s1, "caps": caps})
+                mod.overlay(c, t, fi, {"ep": ep, "lang": lang, "s1": s1, "caps": caps})
                 return
             style.grain(c, D.W, D.H, fi)
             style.vignette(c, D.W, D.H, 0.4)
@@ -150,8 +156,9 @@ def render(ep_path, narr_path, lang, out_dir, look="duz"):
 
     # ses: anlatım + müzik yatağı + efektler
     sfx = [(sc[0]["start"] + 1.25, "thud", 34, 1.0), (sc[0]["start"] + 1.25, "tick", 60, 0.8)]
-    sfx += G.sting_sfx(s1) if gv else [(s1 - 0.4, "whoosh", 60, 0.8), (s1 - 0.05, "whoosh", 60, 0.9)]
-    for s in sc[1:]:
+    sfx += mod.sting_sfx(s1) if hasattr(mod, "sting_sfx") else [(s1 - 0.4, "whoosh", 60, 0.8),
+                                                                 (s1 - 0.05, "whoosh", 60, 0.9)]
+    for s in sc[1:] if not hasattr(mod, "sfx") else []:
         sfx.append((s["start"] - 0.1, "whoosh", 60, 0.35))
         if s["kind"] in ("radio", "war"):
             for k in range(3):
@@ -162,6 +169,8 @@ def render(ep_path, narr_path, lang, out_dir, look="duz"):
             sfx.append((s["start"] + 0.1, "thud", 46, 0.6))
         if s["kind"] == "today":
             sfx += [(s["start"] + 0.3 + 0.12 * q, "bell", m, 0.18) for q, m in enumerate((74, 78, 81, 86))]
+    if hasattr(mod, "sfx"):
+        sfx = mod.sfx(sc, s1)
     stems = None
     if "music" in ep:
         mu = ep["music"]

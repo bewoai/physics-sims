@@ -1,5 +1,8 @@
 # Tasarım dili (2026-10-13)
 
+**KARAR: Siluet Sinema** (2. tur, kullanıcı seçti; müzik de onaylandı: "iyi, böyle devam"). Uygulama:
+`story/siluet.py`, render varsayılanı. Kurallar aşağıda "Siluet Sinema kuralları".
+
 **1. tur sonucu:** önce Pul Gravürü seçildi (`story/gravur.py` yazıldı), sonra kullanıcı: "Beğenemedim hiçbirini.
 No. 1 gibi klasik süs ekleme, Instagram güvenli alanına çok dikkat et, arkaya konuyla alakalı kendi müziğini ekle."
 → 2. tur aşağıda. Gravür kodu duruyor ama varsayılan değil.
@@ -56,3 +59,17 @@ ayrışıyor, ucuz render. Riski: tek renk → duygusal sahnelerde kırmızı vu
 - Jenerik: perde yerine kırmızı posta damgası (üst yayda seri adı, ortada yer + yıl, alt yayda bölüm no.,
   sağda dalgalı iptal çizgileri) 1. cümleden 0,35 sn önce çarpar; ses: damga gümü.
 - Belgeler (izin, gazete, kartpostal): kâğıt + çift çerçeve; gölge bulanık değil, taralı.
+
+## Siluet Sinema kuralları (story/siluet.py)
+
+- Katı nesne = karanlık siluet; duygu ışıktan. Her sahne bir ışık seçer (LIGHTS): night, golden, dusk, blue, day,
+  dawn, war. Işık kaynağı (ay/güneş) + huzmeler + sis katmanları (uzak katman sise karışır) + ışıkta toz.
+- Kaynağın önündeki yapıda kafesten ışık sızar (radyal gradyan). Parlayan nesneler (telsiz halkası, Mors, küre,
+  projektör, rakamlar) ışık rengi + bloom.
+- Süs yok: çerçeve, rozet, numara, seri adı, perde, damga yok. Tipografi sade: küçük harf aralıklı etiket
+  (Montserrat 800) + büyük rakam/söz (Montserrat 900, ışık renginde hale); alıntı Playfair 700.
+- Yazılar kamera dışında, ekran koordinatında ve yalnız SAFE içinde (taşarsa küçülür; `check_safe()` denetler).
+  Altyazı: beyaz, söylenen kelime kehribar #FFC46B, arkasında yumuşak karartma; 1–2 satır, SAFE genişliği.
+- Paralaks ve toz sahne içi zamanla (küresel zamanla 30. saniyeden sonra katmanlar ekrandan kayıyordu).
+- Ses: kanca rakamında güm, sahne geçişinde yumuşak hışırtı, telsiz/savaşta Mors, uzatmada güm, sonda çan;
+  müzik `story/score.py`.

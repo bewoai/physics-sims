@@ -24,8 +24,8 @@ Neden:
 
 ## Profil
 
-Profil fotoğrafı: `story/avatar.py` → gravür tarzı pul: kazıma gökyüzü, kubbeli yapı, kırmızı posta damgası.
-Zemin EN mürekkep laciverti, TR damga kırmızısı; iki hesap telefonda karışmasın. Yazı yok (daireye küçülünce okunmuyor).
+Profil fotoğrafı: `story/avatar.py` → Siluet Sinema: ışık kaynağının önünde kubbeli yapı silueti, huzmeler.
+EN gece mavisi (ay), TR gün batımı (güneş); iki hesap telefonda karışmasın. Yazı yok (daireye küçülünce okunmuyor).
 
 **EN — Instagram (≤ 150):**
 ```
