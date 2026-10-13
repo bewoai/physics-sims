@@ -15,6 +15,7 @@
     "https://www.toureiffel.paris/en/news/130-years/artists-who-protested-eiffel-tower",
     "https://daily.jstor.org/the-artists-who-hated-the-eiffel-tower"
   ],
+  "source_short": "toureiffel.paris · JSTOR Daily",
   "facts_checked": [
     "20 yıllık imtiyaz, 1909'da bitiyor; arazi 1 Ocak 1910'da şehre dönecekti (frenchmoments; resmi sayfa 403)",
     "1887 sanatçı mektubu, Le Temps 14 Şubat 1887: 'useless and monstrous' (toureiffel.paris, JSTOR Daily)",
@@ -26,7 +27,11 @@
   "en": {
     "hook": "The Eiffel Tower had an expiration date.",
     "script": "The Eiffel Tower had an expiration date. || Paris, 1889. Gustave Eiffel builds the tallest structure in the world. But his permit lasts just twenty years. In 1909, the tower is supposed to come down. Artists already hate it. In a newspaper letter, they call it useless and monstrous. || So Eiffel gives it a job. Weather experiments. Wind tests. And in 1898, the first radio message in Morse code travels from the top of the tower to the Panthéon. || The army is listening. From the summit, its signals reach six thousand kilometers. || In 1910, the permit is extended. For seventy years. And in 1914, the tower's radio catches enemy messages during the Battle of the Marne. || The tower that was meant to disappear became the ear of Paris. And that is why it still stands.",
-    "caption": "The Eiffel Tower had a 20-year permit. Radio saved it. Paris, France · 1889. Source: toureiffel.paris",
+    "title": "Why didn't Paris tear down the Eiffel Tower?",
+    "lines": [
+      "The Eiffel Tower was supposed to come down in 1909.",
+      "Its permit lasted only 20 years. Radio saved it."
+    ],
     "hashtags": [
       "#behindthelandmark",
       "#eiffeltower",
@@ -38,9 +43,14 @@
   "tr": {
     "hook": "Eyfel Kulesi'nin bir son kullanma tarihi vardı.",
     "script": "{Eyfel|Eyfel} Kulesi'nin bir son kullanma tarihi vardı. || Paris, 1889. {Gustave Eiffel|Güstav Eyfel}, dünyanın en yüksek yapısını inşa eder. Ama izni sadece yirmi yıllıktır. 1909'da kulenin yıkılması gerekiyordur. Sanatçılar ondan zaten nefret eder. Bir gazeteye yazdıkları mektupta ona yararsız ve korkunç derler. || {Eiffel|Eyfel} de kuleye bir görev bulur. Hava ölçümleri. Rüzgâr deneyleri. Ve 1898'de, Mors koduyla ilk telsiz mesajı kulenin tepesinden {Panthéon'a|Panteon'a} ulaşır. || Ordu kulak kabartır. Zirveden gönderilen sinyaller altı bin kilometreye ulaşır. || 1910'da izin uzatılır. Tam yetmiş yıl. Ve 1914'te, Marne Muharebesi sırasında kulenin telsizi düşman mesajlarını yakalar. || Yok olması gereken kule, Paris'in kulağı oldu. Ve hâlâ bu yüzden ayakta.",
-    "caption": "Eyfel Kulesi'nin 20 yıllık izni vardı. Onu telsiz kurtardı. Paris, Fransa · 1889. Kaynak: toureiffel.paris",
+    "title": "Paris, Eyfel Kulesi'ni neden yıkmadı?",
+    "lines": [
+      "Eyfel Kulesi'nin 1909'da yıkılması gerekiyordu.",
+      "İzni sadece 20 yıllıktı. Onu telsiz kurtardı."
+    ],
+    "share": "Paris'e gitmiş birine gönder.",
     "hashtags": [
-      "#perdearkası",
+      "#kartpostalinarkasi",
       "#eyfelkulesi",
       "#paris",
       "#tarih",

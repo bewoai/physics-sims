@@ -14,6 +14,7 @@ sys.path.insert(0, ROOT)
 from lib import canvas, encode  # noqa: E402
 from story import draw as D  # noqa: E402
 from story import music, style  # noqa: E402
+from story.brand import BRAND  # noqa: E402
 from story.scenes import SCENES  # noqa: E402
 from story.style import CREAM, INK, MUSTARD, SANS_K, typeface  # noqa: E402
 
@@ -21,7 +22,7 @@ FPS = 30
 XF = 0.35          # sahne geçişi (çapraz)
 LEAD = 0.15        # görüntü anlatımdan biraz önce değişsin
 TAIL = 0.9
-BADGE = {"en": "BEHIND THE LANDMARK", "tr": "MEKÂNIN HİKÂYESİ"}
+BADGE = {k: v["badge"] for k, v in BRAND.items()}
 
 
 def timeline(ep, narr):

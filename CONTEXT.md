@@ -181,10 +181,18 @@ story/music.py      prosedürel müzik yatağı (Dm–Bb–Gm–A, ducking) + ef
 - Render: kare başına gren 86 ms + vinyet 38 ms'ydi → önbellekle 8,6 / 1,1 ms; 62 sn video 633 → 433 sn.
 - Pilot: EN 62,1 sn −13,7 LUFS; TR 56,5 sn −13,9 LUFS.
 
+Hesaplar (2026-10-13, kullanıcı "adlarını sen bul, captionları yaz" dedi; ayrıntı `story/HESAPLAR.md`):
+- EN **Behind the Landmark** `@behindthelandmark`, TR **Kartpostalın Arkası** `@kartpostalinarkasi` (üç platformda
+  aynı ad). TR'de "Mekânın Hikâyesi" elendi ("mekân" = kafe/bar çağrışımı); `#perdearkası` rakibe benzediği için kalktı.
+- `story/brand.py` ad/rozet/etiket; `story/captions.py` bölüm JSON'undan IG/TikTok açıklaması + YouTube başlık/açıklama
+  (anahtarlar auto/captions.py ile aynı → auto/publish.py doğrudan alır); `story/avatar.py` profil fotoğrafı
+  (`teslim/hikaye/avatar_*.png`). Kullanıcı adlarının boşta olduğu doğrulanmadı (kullanıcı açarken bakacak).
+- TR pilot yeni rozetle yeniden render edildi.
+
 Açık:
 1. **Yol 1 (AI görsel):** Google Gemini, Nano Banana 2.1 (kullanıcı seçti). Kullanıcı `GEMINI_API_KEY`'i bulut ortamı
    ayarlarına ekleyecek → yeni oturumda pilotu aynı hikâyeyle üret, Yol 2 ile karşılaştır. Model adını Google'ın
    güncel dokümanından doğrula. Canva generate-image denendi: tam çözünürlük adresi imzalı (403), otomasyona uygun değil.
-2. Kullanıcı geri bildirimi (ses, görsel yol, tempo). Sonra: bölüm üretici (konu listesi → metin + doğrulama → sahne
+2. Kullanıcı: "çıktıyı beğendim, biraz daha cilalanmalı" (neyin, belirtmedi; sorulacak). Sonra: bölüm üretici (konu listesi → metin + doğrulama → sahne
    planı), günlük otomasyona bağlama (YouTube öncelikli; TikTok > 60 sn).
 3. Render hızı: statik katmanları (silüet, kule) önbelleğe al.
