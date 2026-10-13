@@ -189,6 +189,11 @@ Hesaplar (2026-10-13, kullanıcı "adlarını sen bul, captionları yaz" dedi; a
   (`teslim/hikaye/avatar_*.png`). Kullanıcı adlarının boşta olduğu doğrulanmadı (kullanıcı açarken bakacak).
 - TR pilot yeni rozetle yeniden render edildi.
 
+Tasarım dili (kullanıcı: "bit_wonder piksel tarzda, bizim de özgün tarzımız olmalı"): 4 seçenek çizildi ve ölçüldü
+(`story/looks.py`, `story/TASARIM.md`, `teslim/hikaye/tasarim/`): Pul Gravürü (öneri), Seyahat Afişi, Risograf,
+Kâğıt Kesik. Piksel sanatı rakibin tarzı, kullanılmıyor. Kullanıcının seçimi bekleniyor; seçilen tarz draw/scenes'e
+taşınacak.
+
 Açık:
 1. **Yol 1 (AI görsel):** Google Gemini, Nano Banana 2.1 (kullanıcı seçti). Kullanıcı `GEMINI_API_KEY`'i bulut ortamı
    ayarlarına ekleyecek → yeni oturumda pilotu aynı hikâyeyle üret, Yol 2 ile karşılaştır. Model adını Google'ın
