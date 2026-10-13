@@ -77,8 +77,8 @@ def science(c, u, dur, ctx):
     D.tower(c, 540, 4100, 3600)                               # yakın plan: tepe görünür
     top_y = 4100 - 3600
     plat_y = 4100 - 0.85 * 3600
-    D.anemometer(c, 640, plat_y - 20, 1.3, t)
-    D.anemometer(c, 430, plat_y - 20, 0.9, t + 0.4)
+    D.anemometer(c, 680, plat_y - 20, 2.2, t)
+    D.anemometer(c, 400, plat_y - 20, 1.6, t + 0.4)
     D.wind_lines(c, t, n=12)
 
 
@@ -123,11 +123,12 @@ def renewal(c, u, dur, ctx):
     D.skyline(c, 1500, 11, "#26324F", "#1C2640", None, scale=0.8)
     D.tower(c, 540, 1520, 1050, lit=True, t=t, sparkle=0.2)
     D.skyline(c, 1660, 12, "#151C2E", "#0F1524", "#2A3552", lit=0.25, t=t)
-    D.stamp(c, 540, 760, [(L(ctx, "EXPIRES", "SON TARİH"), 70), ("1909", 120)], -1.0, u)   # eski damga duruyor
-    if u > 0.5:                                                   # üstü çizilir
+    # eski damga küçük ve yukarıda (ilk sürümde yenisiyle üst üste biniyordu), üstü çizilir; yenisi aşağıda
+    D.stamp(c, 540, 640, [(L(ctx, "EXPIRES", "SON TARİH"), 54), ("1909", 92)], -1.0, u, w=440, h=190)
+    if u > 0.5:
         f = D.ease((u - 0.5) / 0.25)
-        c.drawLine(300, 660, 300 + 480 * f, 860, paint(INK, stroke=16))
-    D.stamp(c, 540, 1000, [(L(ctx, "EXTENDED", "UZATILDI"), 66), ("1910", 112)], 0.9, u, color=TEAL, angle=6)
+        c.drawLine(330, 560, 330 + 420 * f, 720, paint(INK, stroke=14))
+    D.stamp(c, 540, 1040, [(L(ctx, "EXTENDED", "UZATILDI"), 66), ("1910", 112)], 0.9, u, color=TEAL, angle=6)
     s14 = ctx["S"][14] - ctx["start"]
     if u > s14:
         a = min(1.0, (u - s14) / 0.25)

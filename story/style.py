@@ -80,14 +80,30 @@ def measure(s, size, face=SANS_XB):
     return skia.Font(typeface(face), size).measureText(s)
 
 
-def grain(c, w, h, seed, alpha=0.07):
-    """Kâğıt/film greni: fraktal gürültü, her karede tohum kayar."""
-    sh = skia.PerlinNoiseShader.MakeFractalNoise(0.9, 0.9, 2, float(seed % 97))
-    p = skia.Paint(Shader=sh, BlendMode=skia.BlendMode.kOverlay, Alphaf=alpha)
-    c.drawRect(skia.Rect(0, 0, w, h), p)
+_grain, _vig = {}, {}
+
+
+def grain(c, w, h, seed, alpha=0.07, frames=6):
+    """Kâğıt/film greni. Her karede gürültü üretmek 86 ms sürüyordu (ölçüldü); 6 kare önceden üretilip döngüyle
+    çiziliyor (~birkaç ms)."""
+    k = (w, h, seed % frames)
+    if k not in _grain:
+        surf = skia.Surface(w, h)
+        sh = skia.PerlinNoiseShader.MakeFractalNoise(0.9, 0.9, 2, float(seed % frames * 13 + 1))
+        surf.getCanvas().drawRect(skia.Rect(0, 0, w, h), skia.Paint(Shader=sh))
+        _grain[k] = surf.makeImageSnapshot()
+    c.drawImage(_grain[k], 0, 0, skia.SamplingOptions(),
+                skia.Paint(BlendMode=skia.BlendMode.kOverlay, Alphaf=alpha))
 
 
 def vignette(c, w, h, strength=0.45):
-    c.drawRect(skia.Rect(0, 0, w, h),
-               radial(w / 2, h * 0.48, h * 0.75, [skia.Color4f(0, 0, 0, 0), skia.Color4f(0, 0, 0, 0),
-                                                 skia.Color4f(0, 0, 0, strength)], [0.0, 0.55, 1.0]))
+    """Vinyet bir kez çizilip önbellekten basılır (her karede 38 ms sürüyordu)."""
+    k = (w, h, round(strength, 3))
+    if k not in _vig:
+        surf = skia.Surface(w, h)
+        surf.getCanvas().clear(skia.Color4f(0, 0, 0, 0))
+        surf.getCanvas().drawRect(skia.Rect(0, 0, w, h),
+                                  radial(w / 2, h * 0.48, h * 0.75, [skia.Color4f(0, 0, 0, 0), skia.Color4f(0, 0, 0, 0),
+                                                                     skia.Color4f(0, 0, 0, strength)], [0.0, 0.55, 1.0]))
+        _vig[k] = surf.makeImageSnapshot()
+    c.drawImage(_vig[k], 0, 0)
