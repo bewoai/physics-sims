@@ -80,9 +80,20 @@ def morse_seq(code="·−· ·− −·· ·· −−−", unit=0.07):
     return seq, t
 
 
+# Efekt seviyeleri: konuşmanın RMS'ine göre, efektin en yüksek 50 ms RMS'i (dB). Kullanıcı "sfx'ler yüksek" dedi;
+# ölçüm: güm +10,6 dB, Mors −5,8, çan −6 dB'di (konuşmadan yüksek/yakın) → hepsi konuşmanın belirgin altına.
+SFX_DB = {"thud": -8.0, "tick": -14.0, "bell": -14.0, "whoosh": -16.0, "beepseq": -16.0, "pluck": -14.0}
+
+
+def _peak_rms(y, win=0.05):
+    h = int(win * SR)
+    k = max(1, len(y) // h)
+    return float(np.sqrt(np.mean(y[:k * h].reshape(k, h) ** 2, axis=1)).max()) + 1e-9
+
+
 def mix(narr_wav, total, sfx, out_wav, music_db=-21.0, duck_db=-6.0, stems=None, rel_db=-11.0,
         duck_acc_db=-8.0, duck_mel_db=-13.0):
-    """sfx: [(t, kind, midi, gain)] ; kind 'beepseq' → Mors bip dizisi.
+    """sfx: [(t, kind, midi, gain)] ; kind 'beepseq' → Mors bip dizisi. Seviye SFX_DB'den (gain artık kullanılmıyor).
     stems verilirse (score.compose: "melody", "acc") eski yatak yerine o çalar: konuşma yokken müzik anlatımın
     rel_db altında; konuşurken eşlik duck_acc_db, melodi duck_mel_db daha kısılır (melodi sesle çakışmasın)."""
     x, sr = sf.read(narr_wav, dtype="float32")
@@ -120,20 +131,24 @@ def mix(narr_wav, total, sfx, out_wav, music_db=-21.0, duck_db=-6.0, stems=None,
             dk = np.repeat(10 ** ((ddb * act) / 20), hop)
             dk = np.pad(dk, (0, n - len(dk)), constant_values=1.0)[:n]
             out += v * g * dk[:, None]
+    speech_rms = np.sqrt(np.mean(rms[rms > 0.02] ** 2)) if np.any(rms > 0.02) else 0.1
     for t, kind, midi, gain in sfx:
+        tgt = speech_rms * 10 ** (SFX_DB.get(kind, -14.0) / 20)        # efekt seviyesi konuşmaya göre (dB)
         if kind == "beepseq":
             seq, _ = morse_seq()
+            g = tgt / _peak_rms(beep(0.21, gain=1.0))
             for st, d in seq:
-                y = beep(d, gain=gain)
+                y = beep(d, gain=1.0) * g
                 p0 = int((t + st) * SR)
                 if p0 + len(y) < n:
-                    out[p0:p0 + len(y)] += y[:, None] * 0.7
+                    out[p0:p0 + len(y)] += y[:, None]
             continue
-        y = audio.synth(kind, midi) * gain
+        y = audio.synth(kind, midi)
+        y = y * tgt / _peak_rms(y)
         p0 = int(t * SR)
         m2 = min(len(y), n - p0)
         if m2 > 0:
-            out[p0:p0 + m2] += y[:m2, None] * 0.7
+            out[p0:p0 + m2] += y[:m2, None]
     out = out[:int(total * SR)]
     out = out / (np.max(np.abs(out)) + 1e-9) * 0.89
     sf.write(out_wav, out.astype(np.float32), SR, subtype="PCM_24")

@@ -197,7 +197,7 @@ konuyla alakalı kendi müziğini ekle."
 - 2. tur (`story/looks2.py`): A Siluet Sinema, B Işık Çizgisi; çerçevesiz, tam ekran, 6 sn hareketli örnek + müzik.
   **Kullanıcı A Siluet Sinema'yı seçti, müziği onayladı** → `story/siluet.py` (7 ışık ön ayarı, siluetler, 10 sahne,
   SAFE içinde yazı, sfx); render.py varsayılanı "siluet". Kurallar `story/TASARIM.md` sonu. Profil fotoğrafları da
-  siluete uyarlandı. Kare çizimi 150–530 ms.
+  siluete uyarlandı. Kare çizimi 150–530 ms. Kullanıcı: "Silüet sinema çok tatlı olmuş."
 - **Güvenli alan** `story/safezone.py`: SAFE x 92–920, y 285–1440 (kullanıcının IG ekran görüntüsünden ölçüldü: sağ
   ikonlar x 938–1004 / y 869–1857, alt yazı y ≥ 1718, yanlardan 34 px kırpma; + Meta 896×1264 alanı, TikTok/Shorts
   alt payı). `draw_qa()` arayüz alanlarını kırmızı boyar; her yeni tarz bununla kontrol edilir.
@@ -207,6 +207,9 @@ konuyla alakalı kendi müziğini ekle."
   daha. Doğrulama (dinleyemiyorum): ölçü başına kroma akorla uyumlu, melodide gam dışı nota yok (bulunan 2 hata
   düzeltildi), çekme seslerinin kesik sonu tık yapıyordu → sönümle bitiş, 40 Hz altı süzüldü (enerji payı %0,03).
   Bölüm JSON'u "music": {"theme", "bpm", "seed", "moods"}. Yeni yerler için tema eklenmeli (İstanbul → makam vb.).
+- **Efekt seviyesi** (kullanıcı: "sfx'ler yüksek"): ölçüldü, konuşma RMS'ine göre en yüksek 50 ms RMS: güm +10,6 dB,
+  Mors −5,8, çan −6,1, hışırtı −11,8. Artık `music.SFX_DB` hedefiyle ayarlanıyor: güm −8, çan/tık −14,
+  hışırtı/Mors −16 dB (gain parametresi kullanılmıyor). Kullanıcı yine yüksek derse bu tabloyu kıs.
 
 Açık:
 1. **Yol 1 (AI görsel):** Google Gemini, Nano Banana 2.1 (kullanıcı seçti). Kullanıcı `GEMINI_API_KEY`'i bulut ortamı
