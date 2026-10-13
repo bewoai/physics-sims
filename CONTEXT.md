@@ -153,3 +153,38 @@ auto/history.jsonl            her çalışma (Actions commit'ler); dry_run sıra
 - Upload-Post: Basic plan gerekli (ücretsizde TikTok yok, 10 yükleme/ay). Limitler: TikTok 15, IG 50, YouTube 10 gönderi/gün.
 - Yapılmadı: performans verisine göre format ağırlığı (izlenme/izlenme süresi). Upload-Post analitiği ya da platform
   istatistikleri bağlanınca `pick_format` ağırlıklı hale getirilebilir.
+
+## 9. Yeni niş: "Behind the Landmark" anlatımlı tarih kısa videoları (2026-10-13)
+
+Kullanıcı örnek gösterdi: Türk hesabı **Perde Tarih** (illüstrasyonlu, anlatımlı "bildiğin tarihin perde arkası").
+İstenen: aynı mekanik, **TR + EN iki kanal**. Araştırma (4 Opus alt ajanı) ve kararlar: `story/ARASTIRMA.md`.
+
+```
+story/tts.py        anlatım: EN Kokoro-82M bm_george (venv312, Python 3.12), TR EMA Lightning; cümle cümle sentez,
+                    baş/son sessizlik kırpma, noktalama duraklaması, "||" vurgu, {gösterilen|okunan} telaffuz,
+                    align(): sayılar altyazıda metindeki yazımla
+story/episodes/*.json  bölüm: doğrulanmış olgular + kaynaklar, EN/TR metin, cümle indeksine bağlı sahne planı
+story/style.py      palet, yazı tipleri (Montserrat + Liberation Serif), önbellekli gren/vinyet
+story/draw.py       kodla çizim kütüphanesi (Yol 2): parametrik Eyfel, Paris silueti, Panthéon, damga, kartpostal,
+                    gazete, izin belgesi, perde, telsiz/Mors, küre, bayrak dizisi, kalabalık
+story/scenes.py     Eyfel pilotunun 10 sahnesi (kamera itme + katman paralaksı)
+story/render.py     zaman çizelgesi, 0,35 sn geçiş, perde jeneriği, kelime kelime altyazı, miks → final.mp4
+story/music.py      prosedürel müzik yatağı (Dm–Bb–Gm–A, ducking) + efektler (damga, Mors bip, perde)
+```
+Çalıştırma (EN): `venv312/bin/python` ile `tts.narrate(...)` → `out/story/eiffel_en.json`, sonra
+`python3 story/render.py story/episodes/eiffel.json out/story/eiffel_en.json en out/story/eiffel_en_code`.
+
+Ölçülenler:
+- Kokoro her cümleye ~0,2–0,3 sn kendi sessizliğini ekliyor → kırpılmadan EN 77,7 sn, kırpınca 61,2 sn (speed 1,08).
+- EMA: 4 CPU'da tek parça 0,9× gerçek zaman; cümle toplu 21,7 sn ses 11,3 sn'de. Whisper ile WER: yanlış okunan
+  kelime yok. Cümle arası doğal duraklama ~0,3 sn (kısa) → biz koyuyoruz.
+- Render: kare başına gren 86 ms + vinyet 38 ms'ydi → önbellekle 8,6 / 1,1 ms; 62 sn video 633 → 433 sn.
+- Pilot: EN 62,1 sn −13,7 LUFS; TR 56,5 sn −13,9 LUFS.
+
+Açık:
+1. **Yol 1 (AI görsel):** Google Gemini, Nano Banana 2.1 (kullanıcı seçti). Kullanıcı `GEMINI_API_KEY`'i bulut ortamı
+   ayarlarına ekleyecek → yeni oturumda pilotu aynı hikâyeyle üret, Yol 2 ile karşılaştır. Model adını Google'ın
+   güncel dokümanından doğrula. Canva generate-image denendi: tam çözünürlük adresi imzalı (403), otomasyona uygun değil.
+2. Kullanıcı geri bildirimi (ses, görsel yol, tempo). Sonra: bölüm üretici (konu listesi → metin + doğrulama → sahne
+   planı), günlük otomasyona bağlama (YouTube öncelikli; TikTok > 60 sn).
+3. Render hızı: statik katmanları (silüet, kule) önbelleğe al.
