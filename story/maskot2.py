@@ -104,11 +104,24 @@ def _mouth(c, x, y, w, mood, col="#3A1C1C", tongue="#FF7C8E", t=0.0):
         c.drawPath(p, paint(col, stroke=w * 0.2))
 
 
-# ---------------------------------------------------------------- 1) Mango: tek beyin hücreli turuncu kedi
-M_O, M_D, M_C, M_P = "#FF8A2A", "#E0661A", "#FFE6C6", "#FF9AA8"
+# ---------------------------------------------------------------- 1) Mango: tek beyin hücreli kedi (kullanıcı seçti)
+# Renk: tekir (kullanıcı: "tekir kedi renginde olsun"). Eski turuncu palet ORANGE olarak duruyor.
+TEKIR = dict(base="#9B9187", shade="#7E756C", stripe="#3F3933", cream="#F3ECE2", ear="#F2A7B0", nose="#F07F95",
+             iris="#A8C94A")
+ORANGE = dict(base="#FF8A2A", shade="#E0661A", stripe="#C85410", cream="#FFE6C6", ear="#FF9AA8", nose="#FF6F86",
+              iris="#9BD15A")
+M_O, M_D, M_C, M_P = TEKIR["base"], TEKIR["shade"], TEKIR["cream"], TEKIR["ear"]
 
 
-def mango(c, x, y, s, t, st):
+def _dash(col, w, on, off, phase=0.0):
+    p = paint(col, stroke=w, cap=skia.Paint.kButt_Cap)
+    p.setPathEffect(skia.DashPathEffect.Make([on, off], phase))
+    return p
+
+
+def mango(c, x, y, s, t, st, pal=None):
+    P = pal or TEKIR
+    O, Dk, S, Cr = P["base"], P["shade"], P["stripe"], P["cream"]
     mood = st.get("mood", "idle")
     sq = st.get("squash", 1.0) * (1 + 0.018 * math.sin(t * 2.4))
     c.save()
@@ -119,47 +132,74 @@ def mango(c, x, y, s, t, st):
     tail = skia.Path()
     tail.moveTo(70 * s, -40 * s)
     tail.cubicTo(170 * s, -30 * s, 150 * s + sway * s, -170 * s, 120 * s + sway * 1.6 * s, -210 * s)
-    c.drawPath(tail, paint(M_O, stroke=30 * s))
-    c.drawPath(tail, paint(M_D, stroke=30 * s, alpha=0.25))
+    c.drawPath(tail, paint(O, stroke=30 * s))
+    c.drawPath(tail, _dash(S, 30 * s, 13 * s, 17 * s, 6 * s))       # kuyruk halkaları
     walk = st.get("walk")
     for side in (-1, 1):                                            # ayaklar
         lift = max(0.0, math.sin(walk + (0 if side > 0 else math.pi))) * 14 * s if walk is not None else 0
-        c.drawOval(skia.Rect(side * 52 * s - 30 * s, -24 * s - lift, side * 52 * s + 30 * s, 6 * s - lift), paint(M_O))
+        c.drawOval(skia.Rect(side * 52 * s - 30 * s, -24 * s - lift, side * 52 * s + 30 * s, 6 * s - lift), paint(O))
     body = skia.Path()                                              # gövde: armut, baş-gövde birleşik
     body.addOval(skia.Rect(-110 * s, -200 * s, 110 * s, 0))
-    c.drawPath(body, paint(M_O))
-    c.drawOval(skia.Rect(-62 * s, -140 * s, 62 * s, -8 * s), paint(M_C))  # göbek
+    c.drawPath(body, paint(O))
+    c.save()                                                        # gövde yan çizgileri (tekir)
+    c.clipPath(body, doAntiAlias=True)
+    for side in (-1, 1):
+        for k in range(3):
+            p = skia.Path()
+            yy = -160 * s + k * 42 * s
+            p.moveTo(side * 115 * s, yy)
+            p.quadTo(side * 80 * s, yy + 10 * s, side * 70 * s, yy + 30 * s)
+            c.drawPath(p, paint(S, stroke=11 * s))
+    c.restore()
+    c.drawOval(skia.Rect(-62 * s, -140 * s, 62 * s, -8 * s), paint(Cr))  # göbek
     hy = -270 * s                                                   # baş
-    for side in (-1, 1):                                            # kulaklar (takip: kafa eğilince geri gelir)
+    for side in (-1, 1):                                            # kulaklar
         ear = skia.Path()
         ex = side * 92 * s
         ear.moveTo(ex - side * 50 * s, hy - 92 * s)
         ear.lineTo(ex + side * 18 * s, hy - 175 * s + (8 * s if mood == "sleepy" else 0))
         ear.lineTo(ex + side * 34 * s, hy - 60 * s)
         ear.close()
-        c.drawPath(ear, paint(M_O))
+        c.drawPath(ear, paint(O))
         inner = skia.Path()
         inner.moveTo(ex - side * 28 * s, hy - 95 * s)
         inner.lineTo(ex + side * 12 * s, hy - 150 * s)
         inner.lineTo(ex + side * 20 * s, hy - 80 * s)
         inner.close()
-        c.drawPath(inner, paint(M_P))
-    c.drawOval(skia.Rect(-150 * s, hy - 130 * s, 150 * s, hy + 120 * s), paint(M_O))
-    for i, dx in enumerate((-34, 0, 34)):                           # alın çizgileri
-        c.drawLine(dx * s, hy - 128 * s, dx * 0.7 * s, hy - (88 if i != 1 else 78) * s, paint(M_D, stroke=12 * s))
-    for side in (-1, 1):                                            # yanak çizgileri
+        c.drawPath(inner, paint(P["ear"]))
+    head = skia.Path()
+    head.addOval(skia.Rect(-150 * s, hy - 130 * s, 150 * s, hy + 120 * s))
+    c.drawPath(head, paint(O))
+    c.save()
+    c.clipPath(head, doAntiAlias=True)
+    m = skia.Path()                                                 # alında tekir "M" deseni
+    m.moveTo(-58 * s, hy - 62 * s)
+    m.lineTo(-34 * s, hy - 104 * s)
+    m.lineTo(0, hy - 74 * s)
+    m.lineTo(34 * s, hy - 104 * s)
+    m.lineTo(58 * s, hy - 62 * s)
+    c.drawPath(m, paint(S, stroke=11 * s))
+    for dx in (-30, 0, 30):                                         # tepe çizgileri
+        c.drawLine(dx * s, hy - 135 * s, dx * 0.8 * s, hy - (112 if dx else 96) * s, paint(S, stroke=12 * s))
+    for side in (-1, 1):                                            # yanak çizgileri + göz kenarı çizgisi
         for k in range(2):
-            c.drawLine(side * 150 * s, hy + (10 + 26 * k) * s, side * 118 * s, hy + (14 + 24 * k) * s,
-                       paint(M_D, stroke=9 * s))
-    c.drawOval(skia.Rect(-70 * s, hy + 18 * s, 70 * s, hy + 112 * s), paint(M_C))  # ağız çevresi
-    _eyes(c, 0, hy - 20 * s, 44 * s, 62 * s, st, lid=M_O, iris="#9BD15A")
-    c.drawPath(_tri(0, hy + 30 * s, 13 * s), paint("#FF6F86"))      # burun
+            p = skia.Path()
+            p.moveTo(side * 152 * s, hy + (4 + 30 * k) * s)
+            p.quadTo(side * 128 * s, hy + (2 + 30 * k) * s, side * 112 * s, hy + (14 + 30 * k) * s)
+            c.drawPath(p, paint(S, stroke=10 * s))
+        c.drawLine(side * 108 * s, hy - 26 * s, side * 150 * s, hy - 40 * s, paint(S, stroke=7 * s))
+    c.restore()
+    c.drawOval(skia.Rect(-70 * s, hy + 18 * s, 70 * s, hy + 112 * s), paint(Cr))  # ağız çevresi
+    _eyes(c, 0, hy - 20 * s, 44 * s, 62 * s, st, lid=O, iris=P["iris"])
+    c.drawPath(_tri(0, hy + 30 * s, 13 * s), paint(P["nose"]))      # burun
     _mouth(c, 0, hy + 58 * s, 26 * s, mood, t=t)
     for side in (-1, 1):                                            # bıyıklar
         for k in (-1, 0, 1):
             c.drawLine(side * 64 * s, hy + (44 + k * 12) * s, side * 150 * s, hy + (30 + k * 26) * s,
                        paint("#FFFFFF", stroke=3 * s, alpha=0.85))
-    _arms(c, s, st, M_O, sh_y=-150 * s, sh_x=100 * s)
+    _arms(c, s, st, O, sh_y=-150 * s, sh_x=100 * s, stripe=S)
+    if st.get("extra"):
+        st["extra"](c, s, hy)                                       # sahneye özel ek (çan, şapka…)
     c.restore()
 
 
@@ -172,18 +212,26 @@ def _tri(x, y, r):
     return p
 
 
-def _arms(c, s, st, col, sh_y, sh_x, w=26):
+def _arms(c, s, st, col, sh_y, sh_x, w=26, stripe=None):
+    """Kollar. arm_l / arm_r: aşağıdan dışa açı (0 sarkık, 90 yatay, 180 yukarı) verilirse o; yoksa ruh hali
+    (aha/happy: yukarı) ve wave (sağ el sallama)."""
     wave = st.get("wave", 0.0)
     mood = st.get("mood", "idle")
-    for side in (-1, 1):
-        up = 0.0
-        if mood in ("aha", "happy"):
-            up = 1.0
-        if side > 0 and wave > 0:
-            up = 0.85 + 0.25 * math.sin(wave * 14)
-        a = math.radians(25 + 135 * up)
+    for side, key in ((-1, "arm_l"), (1, "arm_r")):
+        if key in st:
+            deg = st[key]
+        else:
+            deg = 25 + (135 if mood in ("aha", "happy") else 0)
+            if side > 0 and wave > 0:
+                deg = 25 + 135 * (0.85 + 0.25 * math.sin(wave * 14))
+        a = math.radians(deg)
         ex, ey = side * (sh_x + math.sin(a) * 70 * s), sh_y + math.cos(a) * 70 * s
         c.drawLine(side * sh_x * 0.85, sh_y, ex, ey, paint(col, stroke=w * s))
+        if stripe:
+            arm = skia.Path()
+            arm.moveTo(side * sh_x * 0.85, sh_y)
+            arm.lineTo(ex, ey)
+            c.drawPath(arm, _dash(stripe, w * s, 7 * s, 15 * s, 4 * s))
         c.drawCircle(ex, ey, w * 0.7 * s, paint(col))
 
 

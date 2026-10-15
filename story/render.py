@@ -113,7 +113,7 @@ def render(ep_path, narr_path, lang, out_dir, look="siluet"):
         cur = sc[i]
 
         def scene(c, s):
-            ctx = {"t": t, "lang": lang, "S": S, "start": s["start"], "place": ep["place"], "texts": [],
+            ctx = {"t": t, "lang": lang, "S": S, "start": s["start"], "place": ep.get("place", {}), "texts": [],
                    "strike": None}
             c.save()
             if win:

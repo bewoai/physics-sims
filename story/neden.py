@@ -13,6 +13,7 @@ import skia
 
 from story import draw as D
 from story import karakter as K
+from story import maskot2 as M2
 from story import music, style
 from story.safezone import CX, SAFE
 from story.siluet import (AMBER, BLACK, BOLD, PLUS, appear, blurp, caption, check_safe, draw_texts, font, text,  # noqa
@@ -333,6 +334,30 @@ def rim(kind):
     return ROOMS[kind]["rim"]
 
 
+def cat(c, x, y, s, t, **st):
+    """Seri maskotu Mango (tekir kedi, story/maskot2.py). Zemin gölgesi + otomatik göz kırpma.
+    Döner: {"head": (hx, hy, hr)} ekran koordinatı (balon / işaret yerleşimi için)."""
+    jump = st.pop("jump", 0.0)
+    if "blink" not in st:
+        ph = (t + 0.37 * x / 100) % 3.3
+        st["blink"] = math.sin(ph / 0.14 * math.pi) if ph < 0.14 else 0.0
+    tilt = st.get("tilt", 0.0)
+    if abs(tilt) < 30:
+        c.drawOval(skia.Rect(x - 120 * s, y - 14 * s, x + 120 * s, y + 14 * s), paint("#000000", alpha=0.28))
+    M2.mango(c, x, y - jump, s, t, st)
+    r = math.radians(tilt)
+    ox, oy = 0.0, -270 * s
+    hx, hy = x + ox * math.cos(r) - oy * math.sin(r), y - jump + ox * math.sin(r) + oy * math.cos(r)
+    return {"head": (hx, hy, 150 * s)}
+
+
+def note(c, x, y, s=1.0, col="#FFFFFF", a=1.0):
+    """♪ çizimi (yazı tipinde glif yok)."""
+    c.drawOval(skia.Rect(x - 16 * s, y - 10 * s, x + 12 * s, y + 12 * s), paint(col, alpha=a))
+    c.drawLine(x + 10 * s, y, x + 10 * s, y - 56 * s, paint(col, stroke=5 * s, alpha=a))
+    c.drawLine(x + 10 * s, y - 56 * s, x + 30 * s, y - 40 * s, paint(col, stroke=5 * s, alpha=a))
+
+
 # ---------------------------------------------------------------- BÖLÜM 1: kapı
 def k_hook(c, u, dur, ctx):
     t = ctx["t"]
@@ -352,22 +377,23 @@ def k_hook(c, u, dur, ctx):
     window(c, 1180, 520, 220, 280, ["#BFE0EC", "#F6E8C8"])
     table(c, 1380, w=300, h=280)
     walking = u < 2.1
-    pose = {"walk": u * 7.5 if walking else None, "rim": rim("living" if cx < 780 else "kitchen"),
-            "rim_dir": (-1, -1) if cx < 780 else (1, -1)}
+    pose = {"walk": u * 7.5 if walking else None, "mood": "idle", "look": (0.8, 0.0)}
     if not walking:
         k = u - 2.1
-        pose.update({"eyes": "wide" if k < 0.6 else "open", "mouth": "o" if k < 0.6 else "flat",
-                     "look": (math.sin(k * 5), -0.2), "arm_r": (150, -150) if k > 0.5 else (0, 0)})
-    h = K.char(c, cx, FLOOR, 1.0, t, pose)
+        e = ease(k / 0.3)
+        pose.update({"mood": "shock" if k < 0.5 else "confused", "derp": 0.0 if k < 0.5 else 0.85 * ease((k - 0.5) / 0.3),
+                     "tilt": -10 * ease((k - 0.5) / 0.3), "look": (math.sin(k * 5) * (1 - e * 0.5), -0.2),
+                     "arm_r": 150 if k > 0.6 else 25})
+    h = cat(c, cx, FLOOR, 0.9, t, **pose)
     hx, hy, hr = h["head"]
     passed = cx > 800
     if not passed:                                                # düşünce balonu: anahtarlar
-        bx, by = cx + 150, hy - 200
+        bx, by = cx + 150, hy - 240
         K.bubble(c, bx, by, 0.9, tail_to=(hx + 40, hy - hr))
         keys_icon(c, bx - 20, by, 1.2)
     elif u < 1.9:                                                 # kapıdan geçince balon patlar
         k = (u - (800 - 260) / 330) / 0.25
-        K.bubble(c, cx + 150, hy - 200, 0.9 * (1 + 0.5 * k), a=max(0.0, 1 - k))
+        K.bubble(c, cx + 150, hy - 240, 0.9 * (1 + 0.5 * k), a=max(0.0, 1 - k))
     if not walking:
         K.mark(c, hx + 70, hy - hr - 40, 1.0, "?", bob=6 * math.sin(t * 6), a=appear(u, 2.2, 0.2))
 
@@ -377,15 +403,13 @@ def k_culprit(c, u, dur, ctx):
     zoom(c, 1.2)
     s2 = ctx["S"][2] - ctx["start"]
     room(c, "kitchen", (900, 520), 900)
-    doorway(c, 700, w=330, h=720, inner=("#FFE7C2", "#E6B98A"))
-    door_leaf(c, 700 + 165, 330, 720, 0.55, eyes=appear(u, s2 - 0.1, 0.3), t=t,
+    doorway(c, 560, w=330, h=720, inner=("#FFE7C2", "#E6B98A"))
+    door_leaf(c, 560 + 165, 330, 720, 0.55, eyes=appear(u, s2 - 0.1, 0.3), t=t,
               look=(-0.8, 0.1) if u < s2 + 0.8 else (-0.3, -0.6))
-    h = K.char(c, 230, FLOOR, 0.95, t, {"face": 1, "eyes": "angry" if u > s2 + 0.3 else "open",
-                                         "mouth": "frown" if u > s2 + 0.3 else "flat", "look": (1, 0),
-                                         "rim": rim("kitchen")})
+    h = cat(c, 200, FLOOR, 0.85, t, mood="annoyed" if u > s2 + 0.3 else "idle", look=(1, 0))
     if u > s2 + 0.2:                                              # kapının ağzından anahtar ucu
         a = appear(u, s2 + 0.2)
-        keys_icon(c, 850, FLOOR - 720 * 0.36, 0.9 * a, "#E8E2D6")
+        keys_icon(c, 710, FLOOR - 720 * 0.36, 0.9 * a, "#E8E2D6")
     _t(ctx, L(ctx, "CULPRIT: THE DOOR", "SUÇLU: KAPI"), SAFE.left(), 520, 56, "#FFFFFF", BLACK,
        alpha=appear(u, s2), glow="#FF8A5C", spacing=2)
 
@@ -399,15 +423,15 @@ def _lane(c, y0, h, u, door, label, ok, ctx, t):
         c.drawRect(skia.Rect(520, y0 + 40, 600, y0 + h - 40), paint("#E9F2EE", alpha=0.85))
         c.drawRect(skia.Rect(505, y0 + 25, 615, y0 + h - 40), paint(INK, stroke=16, cap=skia.Paint.kButt_Cap))
     s = 0.58
-    hd = K.char(c, cx, y0 + h - 40, s, t, {"walk": u * 8, "rim": "#BFE6F5", "blink": False})
-
+    hd = cat(c, cx, y0 + h - 40, 0.5, t, walk=u * 8, look=(0.8, 0),
+             mood="confused" if (door and cx > 560) else "idle", derp=0.8 if (door and cx > 560) else 0.0)
     hx, hy, hr = hd["head"]
     lost = door and cx > 560
     if not lost:
-        K.bubble(c, hx + 70, hy - 95, 0.42, tail_to=(hx + 20, hy - hr))
-        keys_icon(c, hx + 62, hy - 95, 0.55)
+        K.bubble(c, hx + 90, hy - 110, 0.42, tail_to=(hx + 30, hy - hr))
+        keys_icon(c, hx + 82, hy - 110, 0.55)
     else:
-        K.mark(c, hx + 40, hy - hr - 20, 0.6, "?")
+        K.mark(c, hx + 70, hy - hr - 10, 0.6, "?")
     yl = y0 + 70
     _t(ctx, label, SAFE.left() + 10, yl, 40, "#FFFFFF", BOLD, spacing=3)
     tick_mark(c, SAFE.right() - 40, yl - 14, ok)
@@ -427,16 +451,16 @@ def k_scene(c, u, dur, ctx):
     s5 = ctx["S"][5] - ctx["start"]
     room(c, "lab", (540, 700), 800)
     k = ease((u - 0.25) / 0.2)
-    clapper(c, 330, 560, 1.0, k, L(ctx, "SCENE 2", "SAHNE 2") if u > 0.45 else L(ctx, "SCENE 1", "SAHNE 1"))
+    clapper(c, 330, 690, 1.0, k, L(ctx, "SCENE 2", "SAHNE 2") if u > 0.45 else L(ctx, "SCENE 1", "SAHNE 1"))
     dk = ease((u - s5 + 0.2) / 0.4) * (1 - ease((u - s5 - 1.6) / 0.4))
     mx, my = cabinet(c, 780, 760, 1.0, dk, L(ctx, "OLD SCENE", "ESKİ SAHNE"))
-    hd = K.char(c, 300, FLOOR, 0.95, t, {"eyes": "wide" if u > s5 else "open", "mouth": "o" if u > s5 else "flat",
-                                          "look": (1, -0.3) if u > s5 else (0.3, -0.8), "rim": "#BFE6F5"})
+    hd = cat(c, 300, FLOOR, 0.85, t, mood="shock" if u > s5 else "idle",
+             look=(1, -0.3) if u > s5 else (0.3, -0.8))
     fly = ease((u - s5) / 0.9)                                    # düşünce çekmeceye uçar
     if u < s5 + 1.0:
         hx, hy, hr = hd["head"]
-        bx = hx + 120 + (mx - hx - 120) * fly
-        by = hy - 190 + (my + 40 - hy + 190) * fly - math.sin(fly * math.pi) * 160
+        bx = hx + 200 + (mx - hx - 200) * fly
+        by = hy - 230 + (my + 40 - hy + 230) * fly - math.sin(fly * math.pi) * 160
         sc = 0.8 * (1 - 0.6 * fly)
         K.bubble(c, bx, by, sc)
         keys_icon(c, bx - 16 * sc, by, 1.1 * sc)
@@ -446,15 +470,15 @@ def k_punch(c, u, dur, ctx):
     t = ctx["t"]
     zoom(c, 1.2)
     room(c, "kitchen", (900, 520), 900)
-    doorway(c, 700, w=330, h=720, inner=("#FFE7C2", "#E6B98A"))
+    doorway(c, 560, w=330, h=720, inner=("#FFE7C2", "#E6B98A"))
     look = (0.8, -0.7) if (u % 1.6) < 0.8 else (-0.2, -0.9)        # kapı ıslık çalar gibi yukarı bakar
-    door_leaf(c, 700 + 165, 330, 720, 0.55, eyes=1.0, t=t, look=look, mood="guilty")
-    K.char(c, 260, FLOOR, 0.95, t, {"eyes": "angry", "mouth": "frown", "arm_r": (95, -5), "look": (1, 0),
-                                     "jump": 10 * abs(math.sin(t * 6)), "rim": rim("kitchen")})
-    if u > 0.6:
-        f = font(BLACK, 46)
+    door_leaf(c, 560 + 165, 330, 720, 0.55, eyes=1.0, t=t, look=look, mood="guilty")
+    cat(c, 200, FLOOR, 0.85, t, mood="annoyed", arm_r=95 + 6 * math.sin(t * 12), look=(1, 0),
+        jump=10 * abs(math.sin(t * 6)))
+    if u > 0.6:                                                   # kapı ıslık çalıyor
         a = appear(u, 0.6)
-        c.drawString("♪", 960, 520 + 10 * math.sin(t * 4), f, paint("#FFFFFF", alpha=a))
+        note(c, 850, 620 + 10 * math.sin(t * 4), 1.0, a=a)
+        note(c, 900, 560 + 10 * math.sin(t * 4 + 1), 0.8, a=a)
 
 
 # ---------------------------------------------------------------- BÖLÜM 2: ekmek
@@ -481,10 +505,9 @@ def e_hook(c, u, dur, ctx):
     else:
         toast(c, 760, FLOOR - 14, 180, 1.0)
         splat(c, 760, FLOOR - 2, min(1.0, (u - k_hit - 0.65) / 0.15))
-    arm = (70, 20) if u < k_hit else (110, -10)
-    K.char(c, 300, FLOOR, 0.95, t, {"arm_r": arm, "eyes": "wide" if landed else "open",
-                                     "mouth": "o" if landed else "smile", "look": (0.9, 0.7) if u > k_hit else (0.5, 0),
-                                     "rim": rim("kitchen")})
+    arm = 60 + 50 * ease((u - k_hit + 0.25) / 0.25)               # dirsek çarpar
+    cat(c, 290, FLOOR, 0.85, t, arm_r=arm, mood="shock" if landed else "idle",
+        look=(0.9, 0.7) if u > k_hit else (0.5, 0), squash=0.92 if landed and u < k_hit + 0.9 else 1.0)
 
 
 def e_physics(c, u, dur, ctx):
@@ -537,26 +560,24 @@ def e_matthews(c, u, dur, ctx):
     room(c, "living", (540, 640), 800)
     trophy(c, 700, 1060, 1.3)
     clap = abs(math.sin(t * 9))
-    K.char(c, 300, FLOOR, 0.95, t, {"eyes": "happy", "mouth": "grin", "arm_l": (-70 + 50 * clap, 40),
-                                     "arm_r": (70 - 50 * clap, -40), "rim": rim("living")})
+    cat(c, 300, FLOOR, 0.85, t, mood="happy", arm_l=60 + 70 * clap, arm_r=60 + 70 * clap,
+        jump=8 * clap)
     _t(ctx, "Robert Matthews · 1995", SAFE.left(), 500, 48, "#FFFFFF", BLACK, alpha=appear(u, 0.2))
     _t(ctx, "Ig Nobel", SAFE.left(), 570, 44, AMBER, BOLD, alpha=appear(u, 0.5), spacing=4)
 
 
 def e_punch(c, u, dur, ctx):
     t = ctx["t"]
-    k = ease(u / max(dur, 0.1))
-    c.translate(0, 260 * (1 - k))                                 # kamera yukarıdan aşağı iner
-    room(c, "kitchen", (820, 300), 900, x0=-300, x1=W + 300)
-    c.drawRect(skia.Rect(-300, -900, W + 300, 0), linear(0, -900, 0, 0, ["#5E8C9A", "#5E8C9A"]))
+    zoom(c, 0.55)                                                 # 3 m masanın tamamı kadraja girsin
+    room(c, "kitchen", (820, 300), 1100, x0=-600, x1=W + 600)
+    c.drawRect(skia.Rect(-600, -1200, W + 600, 0), linear(0, -1200, 0, 0, ["#4E7C8A", "#5E8C9A"]))
     top = FLOOR - 1080                                            # 3 m masa (ölçek: 75 cm = 300 px → 3 m ≈ 1200)
     c.drawRect(skia.Rect(380, top - 24, 900, top), paint(INK))
     for dx in (410, 870):
         c.drawRect(skia.Rect(dx - 9, top, dx + 9, FLOOR), paint(INK))
     ladder(c, 300, top - 40)
-    K.char(c, 330, top - 30, 0.7, t, {"eyes": "happy" if u > 2.0 else "open", "mouth": "grin" if u > 2.0 else "smile",
-                                       "arm_l": (-140, 0) if u > 2.0 else (0, 0),
-                                       "arm_r": (140, 0) if u > 2.0 else (60, 20), "rim": rim("kitchen")})
+    cat(c, 300, top - 40, 0.95, t, mood="happy" if u > 2.0 else "idle", look=(0.8, 0.6),
+        jump=12 * abs(math.sin(t * 7)) if u > 2.0 else 0.0)
     fk = min(1.0, max(0.0, (u - 0.4) / 1.4))
     if fk < 1.0:
         dx, dy, rot = _fall(fk, FLOOR - top, 360, 700, slide=120)
@@ -564,7 +585,7 @@ def e_punch(c, u, dur, ctx):
     else:
         toast(c, 820, FLOOR - 14, 0, 1.0, glow=1.0)
     c.drawLine(980, top, 980, FLOOR, paint("#FFFFFF", stroke=3, alpha=0.8))
-    _t(ctx, "3 m", 760, 520, 120, "#FFFFFF", BLACK, glow=AMBER, alpha=appear(u, 0.3))
+    _t(ctx, "3 m", 700, 1180, 110, "#FFFFFF", BLACK, glow=AMBER, alpha=appear(u, 0.3))
 
 
 # ---------------------------------------------------------------- BÖLÜM 3: alarm
@@ -582,10 +603,9 @@ def a_hook(c, u, dur, ctx):
     ny = _bedroom(c, t)
     awake = u > 1.1
     ring = u > 2.3
-    hx, hy = 250, FLOOR - 250                                     # yastıktaki kafa
-    K.char(c, hx + 130, FLOOR + 40, 0.75, t, {"eyes": ("sleepy" if ring else "wide") if awake else "closed",
-                                               "mouth": "flat" if ring else ("o" if awake else None),
-                                               "lean": -78, "blink": False, "look": (1, -0.4), "rim": rim("bedroom")})
+    hx, hy = 250, FLOOR - 240                                     # yastıktaki kafa (kedi yan yatıyor)
+    cat(c, hx + 270 * 0.72, hy, 0.72, t, tilt=-88, mood=("annoyed" if ring else "shock") if awake else "sleepy",
+        blink=0.0 if awake else 1.0, look=(0.3, -1) if awake else (0, 0))
     blanket(c, 420, 620, breathe=0 if awake else 6 * math.sin(t * 2.2))
     txt = "07:00" if ring else "06:58"
     phone(c, 860, ny - 90, 1.0, txt, glow=1.0 if ring else 0.35, shake=4.0 if ring else 0.0, t=t)
@@ -598,14 +618,13 @@ def a_hook(c, u, dur, ctx):
 def a_inside(c, u, dur, ctx):
     t = ctx["t"]
     room(c, "bedroom", (540, 700), 800)
-    hx, hy, hr = 540, 860, 330                                    # yakın plan kafa: içinde saat (röntgen)
-    c.drawCircle(hx, hy, hr + 6, paint(rim("bedroom"), alpha=0.6))
-    c.drawCircle(hx, hy, hr, paint(INK))
-    c.drawCircle(hx, hy, hr * 0.62, radial(hx, hy, hr * 0.62, [C("#3B4F7A", 0.9), C("#1A2340", 0.0)]))
-    clock_icon(c, hx, hy + 10, 95, t, speed=3.0)
-    c.drawCircle(hx, hy + 10, 160, blurp(40, "#9FD8FF", 0.25 + 0.15 * math.sin(t * 6), PLUS))
-    for side in (-1, 1):
-        K._eye(c, hx + side * 120, hy - 150, 2.2, "closed", (0, 0), INK, False)
+    s_ = 2.2                                                      # yakın plan Mango: alnında röntgen penceresi
+    cat(c, 540, 860 + 270 * s_, s_, t, mood="sleepy", blink=1.0)
+    hx, hy = 540, 860 - 150
+    c.drawCircle(hx, hy, 150, paint("#0E1428"))
+    c.drawCircle(hx, hy, 150, paint("#BFE6F5", stroke=8, alpha=0.8))
+    clock_icon(c, hx, hy + 8, 92, t, speed=3.0)
+    c.drawCircle(hx, hy, 175, blurp(40, "#9FD8FF", 0.25 + 0.15 * math.sin(t * 6), PLUS))
 
 
 def a_study(c, u, dur, ctx):
@@ -648,10 +667,10 @@ def a_brain(c, u, dur, ctx):
     t = ctx["t"]
     zoom(c, 1.2)
     _bedroom(c, t, dawn=0.0)
-    K.char(c, 380, FLOOR + 40, 0.75, t, {"eyes": "closed", "lean": -78, "blink": False, "rim": rim("bedroom")})
+    cat(c, 250 + 270 * 0.72, FLOOR - 240, 0.72, t, tilt=-88, mood="sleepy", blink=1.0)
     blanket(c, 420, 620, breathe=6 * math.sin(t * 2.2))
-    bx, by = 520, 620
-    K.bubble(c, bx, by, 1.2, tail_to=(330, 960))
+    bx, by = 580, 740
+    K.bubble(c, bx, by, 1.1, tail_to=(330, 1000))
     clock_icon(c, bx, by + 4, 70, t, speed=8.0)
 
 
@@ -662,16 +681,17 @@ def a_punch(c, u, dur, ctx):
     room(c, "living", (540, 640), 800)
     if u < s6 - 0.1:                                              # asıl alarm sensin: kafada çanlar
         ring = math.sin(t * 40) * 6
-        hd = K.char(c, 540, FLOOR, 1.0, t, {"eyes": "happy", "mouth": "grin", "arm_l": (-140, 0), "arm_r": (140, 0),
-                                             "jump": 8 * abs(math.sin(t * 8)), "rim": rim("living")})
+        hd = cat(c, 540, FLOOR, 1.15, t, mood="happy", jump=10 * abs(math.sin(t * 8)))
         hx, hy, hr = hd["head"]
-        for side in (-1, 1):
-            c.drawCircle(hx + side * 70 + ring * side, hy - hr - 10, 34, paint(INK))
-            c.drawCircle(hx + side * 70 + ring * side, hy - hr - 10, 40, blurp(14, AMBER, 0.6, PLUS))
+        for side in (-1, 1):                                      # kulak uçlarında çalar saat çanları
+            bx, by = hx + side * 150 * 1.15 + ring * side, hy - 205 * 1.15
+            c.drawCircle(bx, by, 60, blurp(18, AMBER, 0.6, PLUS))
+            c.drawArc(skia.Rect(bx - 48, by - 48, bx + 48, by + 48), 180, 180, True, paint("#E8B04B"))
+            c.drawCircle(bx, by + 2, 11, paint("#8C5A1E"))
         _t(ctx, "RRRİNG!" if ctx["lang"] == "tr" else "RRRING!", SAFE.left(), 520, 90, AMBER, BLACK, glow=AMBER)
     else:                                                         # telefon yedek kulübesinde
         bench(c, 540)
-        phone(c, 540, FLOOR - 250, 1.3, None, glow=0.4, face=True, t=t)
+        phone(c, 540, FLOOR - 330, 2.2, None, glow=0.4, face=True, t=t)
         _t(ctx, L(ctx, "BACKUP", "YEDEK"), CX, 560, 110, "#FFFFFF", BLACK, align="center", glow="#9FD8FF",
            alpha=appear(u, s6), spacing=6)
 
@@ -687,6 +707,8 @@ def overlay(c, t, fi, ctx):
     style.vignette(c, W, H, 0.35)
     title = ctx["ep"][ctx["lang"]].get("title_top")               # sabit soru başlığı: kaydırırken bağlam
     if title:
+        c.drawRect(skia.Rect(0, 230, W, 520), linear(0, 230, 0, 520, [C("#000000", 0.0), C("#000000", 0.42),
+                                                                       C("#000000", 0.0)], [0.0, 0.45, 1.0]))
         f = font(BLACK, 54)
         words, lines, cur = title.split(), [], ""
         for w_ in words:
