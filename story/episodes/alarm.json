@@ -14,7 +14,7 @@
   ],
   "en": {
     "title_top": "Why do we wake up right before the alarm?",
-    "script": "Waking up two minutes before your alarm might not be a coincidence. || Your body sets its own secret alarm. || At the University of {Lübeck|Lubeck}, sleepers were told what time they would be woken. About an hour before that time, a hormone started rising in their blood. || Your brain keeps track of time, even while you sleep. || The real alarm is you. Your phone is just the backup.",
+    "script": "Waking up two minutes before your alarm might not be a coincidence. || Your body sets its own secret alarm. || At the University of {Lübeck|Lubeck}, sleepers were told what time they would be woken. About an hour before that time, a hormone started rising in their blood. || Your brain keeps track of time, even while you sleep. || The real alarm is you. Your phone is just the backup. || Your body knows the time better than you think. || Follow Mango for the next why.",
     "title": "Why do you wake up right before your alarm?",
     "lines": [
       "Waking up right before your alarm might not be a coincidence.",
@@ -26,11 +26,12 @@
       "#sciencefacts",
       "#brain",
       "#relatable"
-    ]
+    ],
+    "next": "Why does the other line always move faster?"
   },
   "tr": {
     "title_top": "Neden alarmdan hemen önce uyanıyoruz?",
-    "script": "Alarmdan iki dakika önce uyanmak, tesadüf olmayabilir. || Vücudun gizlice kendi alarmını kuruyor. || {Lübeck|Lübek} Üniversitesi'nde uyuyanlara, sabah kaçta kaldırılacakları söylendi. Kanlarındaki bir hormon, o saatten yaklaşık bir saat önce yükselmeye başladı. || Yani beynin, sen uyurken bile saati takip ediyor. || Asıl alarm sensin. Telefon sadece yedek.",
+    "script": "Alarmdan iki dakika önce uyanmak, tesadüf olmayabilir. || Vücudun gizlice kendi alarmını kuruyor. || {Lübeck|Lübek} Üniversitesi'nde uyuyanlara, sabah kaçta kaldırılacakları söylendi. Kanlarındaki bir hormon, o saatten yaklaşık bir saat önce yükselmeye başladı. || Yani beynin, sen uyurken bile saati takip ediyor. || Asıl alarm sensin. Telefon sadece yedek. || Yani vücudun, saati senden iyi biliyor. || Bir sonraki neden için Mango'yu takip et.",
     "title": "Neden alarmdan hemen önce uyanırsın?",
     "lines": [
       "Alarmdan hemen önce uyanmak tesadüf olmayabilir.",
@@ -42,7 +43,8 @@
       "#beyin",
       "#bilgi",
       "#ilginçbilgiler"
-    ]
+    ],
+    "next": "Neden hep diğer sıra daha hızlı ilerler?"
   },
   "scenes": [
     {
@@ -64,6 +66,10 @@
     {
       "from": 5,
       "kind": "a_punch"
+    },
+    {
+      "from": 7,
+      "kind": "outro"
     }
   ],
   "music": {
@@ -76,7 +82,9 @@
       "a_inside": "sting",
       "a_study": "bounce",
       "a_brain": "reveal",
-      "a_punch": "finale"
+      "a_punch": "finale",
+      "outro": "finale"
     }
-  }
+  },
+  "cta_from": 8
 }

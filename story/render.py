@@ -29,9 +29,9 @@ TAIL = 0.9
 BADGE = {k: v["badge"] for k, v in BRAND.items()}
 
 
-def timeline(ep, narr):
+def timeline(ep, narr, tail=None):
     S = [s["s"] for s in narr["sentences"]]
-    total = narr["duration"] + TAIL
+    total = narr["duration"] + (TAIL if tail is None else tail)
     sc = []
     for i, s in enumerate(ep["scenes"]):
         start = 0.0 if i == 0 else max(0.0, S[s["from"]] - LEAD)
@@ -97,7 +97,7 @@ def render(ep_path, narr_path, lang, out_dir, look="siluet"):
     win = getattr(mod, "WIN", None)
     ep = json.load(open(ep_path))
     narr = json.load(open(narr_path))
-    sc, S, total = timeline(ep, narr)
+    sc, S, total = timeline(ep, narr, getattr(mod, "TAIL", None))
     caps = chunks(narr["words"])
     os.makedirs(out_dir, exist_ok=True)
     vid = os.path.join(out_dir, "video.mp4")
@@ -112,8 +112,8 @@ def render(ep_path, narr_path, lang, out_dir, look="siluet"):
         i = next(k for k, s in enumerate(sc) if s["start"] <= t < s["end"] or k == len(sc) - 1)
         cur = sc[i]
 
-        def scene(c, s):
-            ctx = {"t": t, "lang": lang, "S": S, "start": s["start"], "place": ep.get("place", {}), "texts": [],
+        def scene(c, s, mul=1.0):
+            ctx = {"t": t, "lang": lang, "S": S, "start": s["start"], "place": ep.get("place", {}), "ep": ep, "cta": ep.get("cta_from"), "texts": [],
                    "strike": None}
             c.save()
             if win:
@@ -121,10 +121,13 @@ def render(ep_path, narr_path, lang, out_dir, look="siluet"):
             scenes[s["kind"]](c, t - s["start"], s["end"] - s["start"], ctx)
             c.restore()
             if hasattr(mod, "draw_texts"):                          # yazılar kamera dışında (SAFE korunur)
-                mod.draw_texts(c, ctx["texts"], ctx["strike"])
+                mod.draw_texts(c, ctx["texts"], ctx["strike"], mul=mul)
 
         def draw(c):
-            scene(c, cur)
+            fade = 1.0
+            if i + 1 < len(sc) and t > cur["end"] - XF:                # geçişte giden sahnenin yazısı söner
+                fade = 1.0 - D.ease((t - (cur["end"] - XF)) / XF)
+            scene(c, cur, fade)
             if i + 1 < len(sc) and t > cur["end"] - XF:            # sonraki sahneye çapraz geçiş
                 a = (t - (cur["end"] - XF)) / XF
                 ac = alt.getCanvas()
@@ -170,7 +173,10 @@ def render(ep_path, narr_path, lang, out_dir, look="siluet"):
         if s["kind"] == "today":
             sfx += [(s["start"] + 0.3 + 0.12 * q, "bell", m, 0.18) for q, m in enumerate((74, 78, 81, 86))]
     if hasattr(mod, "sfx"):
-        sfx = mod.sfx(sc, s1)
+        try:
+            sfx = mod.sfx(sc, s1, S=S, ep=ep)
+        except TypeError:
+            sfx = mod.sfx(sc, s1)
     stems = None
     if "music" in ep:
         mu = ep["music"]

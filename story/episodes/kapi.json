@@ -14,7 +14,7 @@
   ],
   "en": {
     "title_top": "Why do we forget things in doorways?",
-    "script": "You walk into a room and forget why you came in. || It's not you. It's the door. || In experiments at the University of Notre Dame, people who walked through a doorway forgot more than people who walked the same distance in one room. || Your brain treats a doorway as the end of a scene. It files the old scene away. || So next time, blame the door.",
+    "script": "You walk into a room and forget why you came in. || It's not you. It's the door. || In experiments at the University of Notre Dame, people who walked through a doorway forgot more than people who walked the same distance in one room. || Your brain treats a doorway as the end of a scene. It files the old scene away. || So next time, blame the door. || You're not forgetful. Your brain just changed scenes. || Follow Mango for the next why.",
     "title": "Why do you forget things when you walk into a room?",
     "lines": [
       "Forgetting why you walked into a room isn't your fault.",
@@ -26,11 +26,12 @@
       "#brain",
       "#sciencefacts",
       "#relatable"
-    ]
+    ],
+    "next": "Why does toast land butter side down?"
   },
   "tr": {
     "title_top": "Odaya girince neden unutuyoruz?",
-    "script": "Bir odaya girdin ve neden girdiğini unuttun. || Suç sende değil. Kapıda. || {Notre Dame|Notr Deym} Üniversitesi'ndeki deneylerde, kapıdan geçenler, aynı yolu tek odada yürüyenlerden daha çok unuttu. || Beyin, kapıyı bir sahnenin sonu sayıyor. Eski sahneyi rafa kaldırıyor. || Yani bir dahaki sefere, suçu kapıya at.",
+    "script": "Bir odaya girdin ve neden girdiğini unuttun. || Suç sende değil. Kapıda. || {Notre Dame|Notr Deym} Üniversitesi'ndeki deneylerde, kapıdan geçenler, aynı yolu tek odada yürüyenlerden daha çok unuttu. || Beyin, kapıyı bir sahnenin sonu sayıyor. Eski sahneyi rafa kaldırıyor. || Yani bir dahaki sefere, suçu kapıya at. || Unutkan değilsin. Beynin sadece sahne değiştirdi. || Bir sonraki neden için Mango'yu takip et.",
     "title": "Odaya girince neden ne için girdiğini unutursun?",
     "lines": [
       "Odaya girip neden girdiğini unutmak senin suçun değil.",
@@ -42,7 +43,8 @@
       "#beyin",
       "#bilgi",
       "#ilginçbilgiler"
-    ]
+    ],
+    "next": "Ekmek neden hep yağlı yüzüstü düşer?"
   },
   "scenes": [
     {
@@ -64,6 +66,10 @@
     {
       "from": 6,
       "kind": "k_punch"
+    },
+    {
+      "from": 7,
+      "kind": "outro"
     }
   ],
   "music": {
@@ -76,7 +82,9 @@
       "k_culprit": "sting",
       "k_study": "bounce",
       "k_scene": "reveal",
-      "k_punch": "finale"
+      "k_punch": "finale",
+      "outro": "finale"
     }
-  }
+  },
+  "cta_from": 9
 }

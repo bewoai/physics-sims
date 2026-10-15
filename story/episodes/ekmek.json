@@ -14,7 +14,7 @@
   ],
   "en": {
     "title_top": "Why does toast land butter-side down?",
-    "script": "Why does toast always land butter side down? || It's not you. It's physics. || A slice sliding off a table starts to spin as it falls. But a table is so low, it only has time for about half a turn. || Butter side up. Half a turn later, butter side down. || Physicist Robert Matthews worked this out, and won an Ig Nobel Prize for it. || To land butter side up, your table would need to be three meters tall.",
+    "script": "Why does toast always land butter side down? || It's not you. It's physics. || Toast sliding off a table starts to spin. But tables are so low, it only gets about half a turn. || Butter side up. Half a turn later, butter side down. || Physicist Robert Matthews proved it, and won an Ig Nobel Prize. || To land butter side up, your table would need to be three meters tall. || So you're not unlucky. Your table is just too short. || Follow Mango for the next why.",
     "title": "Why does toast always land butter side down?",
     "lines": [
       "Toast landing butter side down isn't bad luck.",
@@ -26,11 +26,12 @@
       "#sciencefacts",
       "#funfacts",
       "#relatable"
-    ]
+    ],
+    "next": "Why do we wake up right before the alarm?"
   },
   "tr": {
     "title_top": "Ekmek neden hep yağlı yüzüstü düşer?",
-    "script": "Ekmek neden hep yağlı yüzüstü düşer? || Suç sende değil. Fizikte. || Masadan kayan dilim, düşerken dönmeye başlar. Ama masa o kadar alçak ki, yere varana kadar ancak yarım tur atabilir. || Yağlı yüz yukarıdaydı. Yarım tur sonra, aşağıda. || Fizikçi {Robert Matthews|Robırt Metyuz} bunu hesapladı ve {Ig Nobel|İg Nobel} ödülü aldı. || Yağlı yüzün yukarı gelmesi için, masanın üç metre olması gerekirdi.",
+    "script": "Ekmek neden hep yağlı yüzüstü düşer? || Suç sende değil. Fizikte. || Masadan kayan dilim, düşerken dönmeye başlar. Ama masa o kadar alçak ki, yere varana kadar ancak yarım tur atabilir. || Yağlı yüz yukarıdaydı. Yarım tur sonra, aşağıda. || Fizikçi {Robert Matthews|Robırt Metyuz} bunu hesapladı ve {Ig Nobel|İg Nobel} ödülü aldı. || Yağlı yüzün yukarı gelmesi için, masanın üç metre olması gerekirdi. || Yani şanssız değilsin. Masan sadece fazla alçak. || Bir sonraki neden için Mango'yu takip et.",
     "title": "Ekmek neden hep yağlı yüzüstü düşer?",
     "lines": [
       "Ekmeğin yağlı yüzüstü düşmesi şanssızlık değil.",
@@ -42,7 +43,8 @@
       "#bilgi",
       "#ilginçbilgiler",
       "#bilim"
-    ]
+    ],
+    "next": "Neden alarmdan hemen önce uyanıyoruz?"
   },
   "scenes": [
     {
@@ -64,6 +66,10 @@
     {
       "from": 8,
       "kind": "e_punch"
+    },
+    {
+      "from": 9,
+      "kind": "outro"
     }
   ],
   "music": {
@@ -76,7 +82,9 @@
       "e_physics": "sting",
       "e_turn": "bounce",
       "e_matthews": "reveal",
-      "e_punch": "finale"
+      "e_punch": "finale",
+      "outro": "finale"
     }
-  }
+  },
+  "cta_from": 11
 }

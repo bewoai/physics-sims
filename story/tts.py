@@ -129,7 +129,7 @@ def align(toks, wts):
     return out if j == len(wts) else None
 
 
-def narrate(script, lang, out_wav, **kw):
+def narrate(script, lang, out_wav, beat=None, **kw):
     """Döner: {"wav", "duration", "words": [{w, s, e}], "sentences": [{text, s, e}]}.
     Kelimeler metindeki yazımla (büyük harf, noktalama) verilir; zamanlar TTS'ten."""
     beats = split_beats(script)
@@ -139,7 +139,8 @@ def narrate(script, lang, out_wav, **kw):
     pieces = [np.zeros(int(LEAD * sr), np.float32)]
     t = LEAD
     words, sents = [], []
-    for (raw, beat), (audio, _, wts) in zip(beats, outs):
+    beat_s = BEAT if beat is None else beat                      # "||" ek duraklaması (esprili seride kısa)
+    for (raw, is_beat), (audio, _, wts) in zip(beats, outs):
         text = show(raw)
         toks = text.split()
         audio, cut = trim(audio, sr)
@@ -155,7 +156,7 @@ def narrate(script, lang, out_wav, **kw):
         sents.append({"text": text, "s": round(t, 3), "e": round(t + dur, 3)})
         pieces.append(audio)
         t += dur
-        gap = PAUSE.get(text[-1], 0.25) + (BEAT if beat else 0.0)
+        gap = PAUSE.get(text[-1], 0.25) + (beat_s if is_beat else 0.0)
         pieces.append(np.zeros(int(gap * sr), np.float32))
         t += gap
     pieces.append(np.zeros(int(TAIL * sr), np.float32))

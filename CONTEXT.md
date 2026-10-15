@@ -250,3 +250,15 @@ Karar (kullanıcı): günlük dert + tuhaf ama doğru açıklama, 20–35 sn, ka
 - Hesap adı önerisi (onay bekliyor): TR "Suç Sende Değil · Mango" @sucsendedegil, EN "It's Not You · Mango"
   @itsnotyou.mango (story/brand.py NEDEN). Açıklamalar `python3 story/captions.py story/episodes/<id>.json`.
   Profil: teslim/hikaye/avatar_mango_{tr,en}.png.
+- **Geri bildirim (2026-10-15):** "üst üste gelen semboller, simgeler, yazılar var; sonunda CTA ve sonuç yok, pat diye
+  kesiliyor, amaca hizmet etmiyor".
+  - Çakışma artık ölçülüyor: `python3 story/overlap_qa.py <bölüm> <dil>` (0,2 sn adım; yazı/simge/dekor/Mango
+    kutuları; kurallar dosyada). İlk ölçüm TR'de 19 çakışma (pencere/kapı/tablo başlık bandında, balon etiket ve
+    klaket üstünde, "UYANMA" saat simgesinde, Mango altyazı altında, geçişte iki sahnenin yazısı) → 6 videoda 0.
+    Bilinçli birliktelikler ALLOW listesinde (saat balonda, telefon bankta, balon kapıda patlar / çekmeceye uçar).
+    Geçişte giden sahnenin yazısı söner (render.py `mul`).
+  - Kapanış: her bölüme sonuç cümlesi + seslendirilen CTA ("Bir sonraki neden için Mango'yu takip et") + kapanış
+    kartı (sonuçta seri imzası "SUÇ SENDE DEĞİL / IT'S NOT YOU"; CTA'da TAKİP ET düğmesi + dokunma halkası,
+    başlık altında "Sıradaki: …" = bölüm JSON'u `next`). Kuyruk 1,6 sn; miks son 0,7 sn yumuşak sönüş.
+  - Süre: "||" duraklaması bu seride 0,25 sn, hız TR 1,05 / EN 1,12; EN ekmek metni sıkılaştırıldı.
+    Anlatım TR 26,6 / 32,2 / 28,4, EN 31,2 / 35,8 / 31,8 sn (+1,6 kart).

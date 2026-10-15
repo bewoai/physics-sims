@@ -153,6 +153,8 @@ def mix(narr_wav, total, sfx, out_wav, music_db=-21.0, duck_db=-6.0, stems=None,
         if m2 > 0:
             out[p0:p0 + m2] += y[:m2, None]
     out = out[:int(total * SR)]
+    fo = min(len(out), int(0.7 * SR))                            # son 0,7 sn yumuşak sönüş (pat diye kesilmesin)
+    out[-fo:] *= np.linspace(1.0, 0.0, fo)[:, None] ** 1.5
     out = out / (np.max(np.abs(out)) + 1e-9) * 0.89
     sf.write(out_wav, out.astype(np.float32), SR, subtype="PCM_24")
     return out_wav

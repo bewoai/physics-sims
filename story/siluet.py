@@ -665,8 +665,11 @@ SCENES = {"hook": hook, "place_card": place, "permit": permit, "newspaper": arti
 WIN = None
 
 
-def draw_texts(c, texts, strike=None):
+def draw_texts(c, texts, strike=None, mul=1.0):
     for a, k in texts:
+        if mul < 1.0:
+            k = dict(k)
+            k["alpha"] = k.get("alpha", 1.0) * mul
         text(c, *a, **k)
     if strike:
         x0, y, x1, _, al = strike
