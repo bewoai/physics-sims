@@ -242,3 +242,11 @@ Karar (kullanıcı): günlük dert + tuhaf ama doğru açıklama, 20–35 sn, ka
   (tek beyin hücreli turuncu kedi), Gugu (güvercin), Patates; 6 sn akıcılık denemeleri `teslim/hikaye/maskot_*.mp4`
   (nefes, göz kırpma, bakış, kafa eğme + derp, hazırlık–zıplama–yaylanma, el sallama). Seçim bekleniyor; seçilen
   maskot neden.py'deki karakterin yerine geçecek, sonra 3 bölüm TR + EN render.
+- **Mango tekir** (kullanıcı seçti: "mango olsun ama tekir kedi renginde"): `maskot2.mango` tekir paleti; neden.py
+  15 sahnede Mango. Pilot render (out/story/{kapi,ekmek,alarm}_{tr,en}/final.mp4): TR 22,7 / 28,8 / 25,6 sn,
+  EN 27,1 / 33,3 / 28,5 sn; −13,6…−14,2 LUFS; render ~4,5 dk/video (6 paralel). Efektler konuşmaya göre: hışırtı −16,
+  baloncuk −14, klaket −11, ekmek gümü −8, çan −13/−14 dB. Hata: 20 ms baloncuk 50 ms ölçüm penceresinden kısaydı
+  (music._peak_rms) → düzeltildi.
+- Hesap adı önerisi (onay bekliyor): TR "Suç Sende Değil · Mango" @sucsendedegil, EN "It's Not You · Mango"
+  @itsnotyou.mango (story/brand.py NEDEN). Açıklamalar `python3 story/captions.py story/episodes/<id>.json`.
+  Profil: teslim/hikaye/avatar_mango_{tr,en}.png.

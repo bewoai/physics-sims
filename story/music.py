@@ -87,7 +87,9 @@ SFX_DB = {"thud": -8.0, "tick": -14.0, "bell": -14.0, "whoosh": -16.0, "beepseq"
 
 def _peak_rms(y, win=0.05):
     h = int(win * SR)
-    k = max(1, len(y) // h)
+    if len(y) < h:                                               # pencereden kısa efekt (ör. 20 ms baloncuk)
+        return float(np.sqrt(np.mean(y ** 2))) + 1e-9
+    k = len(y) // h
     return float(np.sqrt(np.mean(y[:k * h].reshape(k, h) ** 2, axis=1)).max()) + 1e-9
 
 
