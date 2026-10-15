@@ -223,3 +223,22 @@ Açık:
 2. Kullanıcı: "çıktıyı beğendim, biraz daha cilalanmalı" (neyin, belirtmedi; sorulacak). Sonra: bölüm üretici (konu listesi → metin + doğrulama → sahne
    planı), günlük otomasyona bağlama (YouTube öncelikli; TikTok > 60 sn).
 3. Render hızı: statik katmanları (silüet, kule) önbelleğe al.
+
+
+## 10. Yeni seri: "Neden hep böyle?" (2026-10-15)
+
+Kullanıcı: Eyfel videosu izlenmedi; "absürt ve insanların sürekli hayatında olan sorunlar dikkat çekiyor".
+Karar (kullanıcı): günlük dert + tuhaf ama doğru açıklama, 20–35 sn, karakterli ve esprili. Seri imza cümlesi
+"Suç sende değil." / "It's not you." (hesap adı adayı).
+- Bölümler (kaynaklı, doğrulanmış): `story/episodes/{kapi,ekmek,alarm}.json` — kapı etkisi (Radvansky 2011),
+  yağlı yüzüstü ekmek (Matthews 1995, Ig Nobel 1996; ≥ 3 m masa), alarmdan önce uyanma (Born 1999, Nature;
+  "habersiz grup" ayrıntısı doğrulanamadı → kullanılmadı). Anlatım: TR 21,8 / 27,9 / 24,7 sn; EN 26,2 / 32,4 / 27,6.
+- Müzik `score.compose_quirky`: 4/4 ~110 bpm, jingle "Suç sende değil" anında; bölüme göre solo (vibes / marimba /
+  musicbox). Akor uyumu ölçüldü: 12/12 ölçü (melodi uzun notalarda akor dışı Re'de takılıyordu → düzeltildi).
+- Görsel `story/neden.py` (15 sahne, iç mekân Siluet Sinema, üstte sabit soru başlığı, zemin y = 1250).
+- Karakter: ilk siluet karakter (`story/karakter.py`) ve 1. tur maskotlar (`story/maskot.py`: Soru, Ampul, Tek Göz —
+  Tek Göz Mike Wazowski'ye benzediği için önerilmedi) → kullanıcı hiçbirini seçmedi: "Duolingo baykuşu gibi,
+  insanın kendiyle eşleştirebileceği, biraz salak, sevimli, akıcı animasyon". 2. tur `story/maskot2.py`: Mango
+  (tek beyin hücreli turuncu kedi), Gugu (güvercin), Patates; 6 sn akıcılık denemeleri `teslim/hikaye/maskot_*.mp4`
+  (nefes, göz kırpma, bakış, kafa eğme + derp, hazırlık–zıplama–yaylanma, el sallama). Seçim bekleniyor; seçilen
+  maskot neden.py'deki karakterin yerine geçecek, sonra 3 bölüm TR + EN render.
