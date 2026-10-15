@@ -1,0 +1,82 @@
+{
+  "id": "alarm",
+  "no": 3,
+  "series": "neden",
+  "sources": [
+    "https://www.nature.com/articles/16166",
+    "https://research.uni-luebeck.de/en/publications/timing-the-end-of-nocturnal-sleep-6/"
+  ],
+  "source_short": "Born et al., Nature (1999)",
+  "facts_checked": [
+    "Born, Hansen, Marshall, Mölle, Fehm 1999, Nature 397:29-30, Lübeck Üniversitesi",
+    "Uykunun belli bir saatte biteceğini beklemek, kandaki ACTH'yi uyanmadan ~1 saat önce belirgin yükseltiyor",
+    "Gazete: 15 genç sağlıklı gönüllü. 'Habersiz uyandırılan grup' ayrıntısı doğrulanamadı → kullanılmadı"
+  ],
+  "en": {
+    "title_top": "Why do we wake up right before the alarm?",
+    "script": "Waking up two minutes before your alarm might not be a coincidence. || Your body sets its own secret alarm. || At the University of {Lübeck|Lubeck}, sleepers were told what time they would be woken. About an hour before that time, a hormone started rising in their blood. || Your brain keeps track of time, even while you sleep. || The real alarm is you. Your phone is just the backup.",
+    "title": "Why do you wake up right before your alarm?",
+    "lines": [
+      "Waking up right before your alarm might not be a coincidence.",
+      "Your body starts preparing about an hour early."
+    ],
+    "share": "Send this to someone who always beats their alarm.",
+    "hashtags": [
+      "#sleep",
+      "#sciencefacts",
+      "#brain",
+      "#relatable"
+    ]
+  },
+  "tr": {
+    "title_top": "Neden alarmdan hemen önce uyanıyoruz?",
+    "script": "Alarmdan iki dakika önce uyanmak, tesadüf olmayabilir. || Vücudun gizlice kendi alarmını kuruyor. || {Lübeck|Lübek} Üniversitesi'nde uyuyanlara, sabah kaçta kaldırılacakları söylendi. Kanlarındaki bir hormon, o saatten yaklaşık bir saat önce yükselmeye başladı. || Yani beynin, sen uyurken bile saati takip ediyor. || Asıl alarm sensin. Telefon sadece yedek.",
+    "title": "Neden alarmdan hemen önce uyanırsın?",
+    "lines": [
+      "Alarmdan hemen önce uyanmak tesadüf olmayabilir.",
+      "Vücudun yaklaşık bir saat önceden hazırlanmaya başlıyor."
+    ],
+    "share": "Alarmı hep yenen birine gönder.",
+    "hashtags": [
+      "#uyku",
+      "#beyin",
+      "#bilgi",
+      "#ilginçbilgiler"
+    ]
+  },
+  "scenes": [
+    {
+      "from": 0,
+      "kind": "a_hook"
+    },
+    {
+      "from": 1,
+      "kind": "a_inside"
+    },
+    {
+      "from": 2,
+      "kind": "a_study"
+    },
+    {
+      "from": 4,
+      "kind": "a_brain"
+    },
+    {
+      "from": 5,
+      "kind": "a_punch"
+    }
+  ],
+  "music": {
+    "theme": "quirky",
+    "lead": "musicbox",
+    "bpm": 104,
+    "seed": 11,
+    "moods": {
+      "a_hook": "tiptoe",
+      "a_inside": "sting",
+      "a_study": "bounce",
+      "a_brain": "reveal",
+      "a_punch": "finale"
+    }
+  }
+}

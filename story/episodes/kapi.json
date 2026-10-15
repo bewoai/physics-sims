@@ -1,0 +1,82 @@
+{
+  "id": "kapi",
+  "no": 1,
+  "series": "neden",
+  "sources": [
+    "https://provost.nd.edu/news/walking-through-doorways-causes-forgetting-new-research-shows",
+    "https://www.scientificamerican.com/article/why-walking-through-doorway-makes-you-forget/"
+  ],
+  "source_short": "Radvansky et al., Quarterly Journal of Experimental Psychology (2011)",
+  "facts_checked": [
+    "Radvansky, Krawietz, Tamplin 2011, QJEP, Notre Dame: kapıdan geçenler, aynı mesafeyi tek odada yürüyenlerden daha çok unuttu; sanal ve gerçek odada tekrarlandı",
+    "Açıklama: kapı 'olay sınırı' gibi çalışıyor, önceki bölümü ayırıp dosyalıyor (Radvansky, Scientific American)",
+    "Dikkat: örneklem küçük, öğrenci; 'geri dönünce hatırlarsın' iddiası kullanılmadı (desteklenmiyor)"
+  ],
+  "en": {
+    "title_top": "Why do we forget things in doorways?",
+    "script": "You walk into a room and forget why you came in. || It's not you. It's the door. || In experiments at the University of Notre Dame, people who walked through a doorway forgot more than people who walked the same distance in one room. || Your brain treats a doorway as the end of a scene. It files the old scene away. || So next time, blame the door.",
+    "title": "Why do you forget things when you walk into a room?",
+    "lines": [
+      "Forgetting why you walked into a room isn't your fault.",
+      "A Notre Dame study found the culprit: the doorway."
+    ],
+    "share": "Send this to someone who does this every day.",
+    "hashtags": [
+      "#psychology",
+      "#brain",
+      "#sciencefacts",
+      "#relatable"
+    ]
+  },
+  "tr": {
+    "title_top": "Odaya girince neden unutuyoruz?",
+    "script": "Bir odaya girdin ve neden girdiğini unuttun. || Suç sende değil. Kapıda. || {Notre Dame|Notr Deym} Üniversitesi'ndeki deneylerde, kapıdan geçenler, aynı yolu tek odada yürüyenlerden daha çok unuttu. || Beyin, kapıyı bir sahnenin sonu sayıyor. Eski sahneyi rafa kaldırıyor. || Yani bir dahaki sefere, suçu kapıya at.",
+    "title": "Odaya girince neden ne için girdiğini unutursun?",
+    "lines": [
+      "Odaya girip neden girdiğini unutmak senin suçun değil.",
+      "Notre Dame Üniversitesi'nin deneyine göre suçlu: kapı."
+    ],
+    "share": "Bunu her gün yapan birine gönder.",
+    "hashtags": [
+      "#psikoloji",
+      "#beyin",
+      "#bilgi",
+      "#ilginçbilgiler"
+    ]
+  },
+  "scenes": [
+    {
+      "from": 0,
+      "kind": "k_hook"
+    },
+    {
+      "from": 1,
+      "kind": "k_culprit"
+    },
+    {
+      "from": 3,
+      "kind": "k_study"
+    },
+    {
+      "from": 4,
+      "kind": "k_scene"
+    },
+    {
+      "from": 6,
+      "kind": "k_punch"
+    }
+  ],
+  "music": {
+    "theme": "quirky",
+    "lead": "vibes",
+    "bpm": 112,
+    "seed": 5,
+    "moods": {
+      "k_hook": "tiptoe",
+      "k_culprit": "sting",
+      "k_study": "bounce",
+      "k_scene": "reveal",
+      "k_punch": "finale"
+    }
+  }
+}

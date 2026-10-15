@@ -90,8 +90,8 @@ def draw_caption(c, ch, t, y=1440, size=70):
 
 
 def render(ep_path, narr_path, lang, out_dir, look="siluet"):
-    from story import gravur, siluet
-    mod = {"gravur": gravur, "siluet": siluet}.get(look)            # None: ilk düz pilot (story/scenes.py)
+    from story import gravur, neden, siluet
+    mod = {"gravur": gravur, "siluet": siluet, "neden": neden}.get(look)            # None: ilk düz pilot (story/scenes.py)
     gv = mod is not None
     scenes = mod.SCENES if gv else SCENES
     win = getattr(mod, "WIN", None)
@@ -176,7 +176,8 @@ def render(ep_path, narr_path, lang, out_dir, look="siluet"):
         mu = ep["music"]
         moods = {**score.MOODS, **mu.get("moods", {})}
         spans = [(s["start"], moods.get(s["kind"], "waltz")) for s in sc]
-        stems = score.compose(spans, total, mu.get("theme", "musette"), mu.get("bpm", 150), mu.get("seed", 3))
+        stems = score.compose(spans, total, mu.get("theme", "musette"), mu.get("bpm", 150), mu.get("seed", 3),
+                              lead=mu.get("lead", "vibes"))
     wav = music.mix(narr["wav"], total, sfx, os.path.join(out_dir, "mix.wav"), stems=stems)
     final = encode.mux(vid, wav, os.path.join(out_dir, "final.mp4"))
     encode.contact_sheet(final, os.path.join(out_dir, "sheet.jpg"), every=total / 16, cols=8, rows=2)

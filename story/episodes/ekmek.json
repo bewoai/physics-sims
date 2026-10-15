@@ -1,0 +1,82 @@
+{
+  "id": "ekmek",
+  "no": 2,
+  "series": "neden",
+  "sources": [
+    "https://oikofuge.com/matthews-tumbling-toast/",
+    "https://fermatslibrary.com/s/tumbling-toast-murphy-s-law-and-i-i-the-fundamental-constants"
+  ],
+  "source_short": "R. Matthews, European Journal of Physics (1995)",
+  "facts_checked": [
+    "Matthews 1995, European Journal of Physics 16(4):172-6; 1996 Ig Nobel (fizik)",
+    "Masadan kayan dilim düşerken döner; normal masa (75 cm) yalnızca ~yarım tura yetiyor → yağlı yüz aşağı",
+    "Yağlı yüzün yukarı gelmesi için en az ~3 m masa gerekir (Matthews: 'minimum height of three metres')"
+  ],
+  "en": {
+    "title_top": "Why does toast land butter-side down?",
+    "script": "Why does toast always land butter side down? || It's not you. It's physics. || A slice sliding off a table starts to spin as it falls. But a table is so low, it only has time for about half a turn. || Butter side up. Half a turn later, butter side down. || Physicist Robert Matthews worked this out, and won an Ig Nobel Prize for it. || To land butter side up, your table would need to be three meters tall.",
+    "title": "Why does toast always land butter side down?",
+    "lines": [
+      "Toast landing butter side down isn't bad luck.",
+      "Physics says your table is simply too short."
+    ],
+    "share": "Send this to someone who drops toast every morning.",
+    "hashtags": [
+      "#physics",
+      "#sciencefacts",
+      "#funfacts",
+      "#relatable"
+    ]
+  },
+  "tr": {
+    "title_top": "Ekmek neden hep yağlı yüzüstü düşer?",
+    "script": "Ekmek neden hep yağlı yüzüstü düşer? || Suç sende değil. Fizikte. || Masadan kayan dilim, düşerken dönmeye başlar. Ama masa o kadar alçak ki, yere varana kadar ancak yarım tur atabilir. || Yağlı yüz yukarıdaydı. Yarım tur sonra, aşağıda. || Fizikçi {Robert Matthews|Robırt Metyuz} bunu hesapladı ve {Ig Nobel|İg Nobel} ödülü aldı. || Yağlı yüzün yukarı gelmesi için, masanın üç metre olması gerekirdi.",
+    "title": "Ekmek neden hep yağlı yüzüstü düşer?",
+    "lines": [
+      "Ekmeğin yağlı yüzüstü düşmesi şanssızlık değil.",
+      "Fiziğe göre masan sadece fazla alçak."
+    ],
+    "share": "Her sabah ekmeğini düşüren birine gönder.",
+    "hashtags": [
+      "#fizik",
+      "#bilgi",
+      "#ilginçbilgiler",
+      "#bilim"
+    ]
+  },
+  "scenes": [
+    {
+      "from": 0,
+      "kind": "e_hook"
+    },
+    {
+      "from": 1,
+      "kind": "e_physics"
+    },
+    {
+      "from": 3,
+      "kind": "e_turn"
+    },
+    {
+      "from": 7,
+      "kind": "e_matthews"
+    },
+    {
+      "from": 8,
+      "kind": "e_punch"
+    }
+  ],
+  "music": {
+    "theme": "quirky",
+    "lead": "marimba",
+    "bpm": 112,
+    "seed": 8,
+    "moods": {
+      "e_hook": "tiptoe",
+      "e_physics": "sting",
+      "e_turn": "bounce",
+      "e_matthews": "reveal",
+      "e_punch": "finale"
+    }
+  }
+}

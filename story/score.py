@@ -214,8 +214,10 @@ class Score:
         return prev
 
 
-def compose(spans, total, theme="musette", bpm=150, seed=3):
+def compose(spans, total, theme="musette", bpm=150, seed=3, lead="vibes"):
     """spans: [(başlangıç sn, ruh hali)] sıralı. Döner: {"melody": (n,2), "acc": (n,2)}."""
+    if theme == "quirky":
+        return compose_quirky(spans, total, bpm=bpm, seed=seed, lead=lead)
     assert theme == "musette", f"tema yok: {theme}"
     sc = Score(total, bpm, seed)
     bar = sc.bar
@@ -276,6 +278,138 @@ def compose(spans, total, theme="musette", bpm=150, seed=3):
     for name, buf in (("melody", sc.mel), ("acc", sc.acc)):
         y = lowpass(buf, 6500)
         y = y + 0.18 * audio._reverb(y, 1.6, 0.45)
+        out[name] = y[:int(total * SR)]
+    return out
+
+
+# ---------------------------------------------------------------- quirky: "Neden hep böyle?" serisi
+"""Esprili, zıplayan tema (4/4, ~110 bpm, Do majör / La minör). Seri imzası: "Suç sende değil" cümlesinde çalan
+jingle (Sol–Do–Mi–Sol + akor vuruşu); her bölümde aynı. Bölüme göre solo çalgı: vibes (kapı), marimba (ekmek),
+musicbox (alarm). Ruh halleri: tiptoe (sinsi pizzicato, kanca), sting (jingle), bounce (açıklama), reveal (tutulan
+akor + arpej), finale (bounce + "ta-da")."""
+QPROG = {"tiptoe": ["Am", "E7", "Am", "E7"], "bounce": ["C", "Am", "F", "G"], "reveal": ["F", "G", "Em", "Am"],
+         "finale": ["C", "Am", "F", "G"]}
+CH.update({"Am": (9, [9, 0, 4]), "Em": (4, [4, 7, 11])})
+QSCALE = {"major": [0, 2, 4, 5, 7, 9, 11], "minor": [9, 11, 0, 2, 4, 5, 7, 8]}
+QRHY = [[1, 1, 1, 1], [1, 0.5, 0.5, 2], [0.5, 0.5, 1, 2], [1.5, 0.5, 1, 1], [2, 1, 1], [1, 1, 2]]
+JINGLE = [67, 72, 76, 79]
+
+
+def vibes(m, dur):
+    """Vibrafon: temel + 4. kısmi, yavaş sönüm, 5,5 Hz tremolo."""
+    key = ("vibes", m, round(dur, 3))
+    if key in _cache:
+        return _cache[key]
+    n = int((dur + 0.8) * SR)
+    t = np.arange(n) / SR
+    f = hz(m)
+    y = (np.sin(2 * np.pi * f * t) + 0.22 * np.sin(2 * np.pi * f * 3.98 * t) * np.exp(-t * 6)) * np.exp(-t * 1.6)
+    y *= 1 - 0.25 * (0.5 + 0.5 * np.sin(2 * np.pi * 5.5 * t))
+    a = int(0.003 * SR)
+    y[:a] *= np.linspace(0, 1, a)
+    r = int(0.05 * SR)
+    y[-r:] *= np.linspace(1, 0, r)
+    _cache[key] = y
+    return y
+
+
+def _lead(kind, m, dur):
+    if kind == "marimba":
+        return audio.synth("pluck", m) * 0.9
+    if kind == "musicbox":
+        return audio.synth("bell", m + 12) * 0.55
+    return vibes(m, dur)
+
+
+def compose_quirky(spans, total, bpm=110, seed=5, lead="vibes"):
+    sc = Score(total, bpm, seed)
+    beat = sc.beat
+    bar = 4 * beat
+    sc.bar = bar
+    rng = sc.rng
+    nbars = int(math.ceil(total / bar)) + 1
+    snapped = [(math.ceil(max(0.0, st) / bar - 1e-6) if i else 0, mood) for i, (st, mood) in enumerate(spans)]
+    runs = []
+    for i, (b0, mood) in enumerate(snapped):
+        b1 = snapped[i + 1][0] if i + 1 < len(snapped) else nbars
+        if b1 > b0:
+            runs.append((b0, b1, mood))
+    prev = 72
+    motif = [rng.choice(QRHY), rng.choice(QRHY)]
+    for b0, b1, mood in runs:
+        t0, nb = b0 * bar, b1 - b0
+        prog = QPROG.get(mood, QPROG["bounce"])
+        minor = mood == "tiptoe"
+        scale = QSCALE["minor" if minor else "major"]
+        for b in range(nb):
+            tb = t0 + b * bar
+            chord = prog[b % len(prog)]
+            root, pcs = CH[chord]
+            if mood == "sting" and b == 0:                        # seri imzası: jingle + akor
+                for k, m in enumerate(JINGLE):
+                    sc.put(sc.mel, _lead(lead, m, beat * 0.45), tb + k * beat * 0.5, 0.6, 0.1)
+                for m in (60, 64, 67, 72):
+                    sc.put(sc.acc, pluck(m, 0.9, 2.5), tb + 2 * beat, 0.35, -0.1)
+                sc.put(sc.acc, pluck(36, 1.2, 2.0), tb + 2 * beat, 0.8)
+                sc.put(sc.acc, noise_burst(0.5, 0.18, 7, 0.97) * 0.18, tb + 2 * beat, 1.0, 0.2)
+                continue
+            if mood == "tiptoe":                                  # sinsi pizzicato yürüyüş + tık
+                walk = [root, (root + 7) % 12, root, (root + 7) % 12]
+                for k, pc in enumerate(walk):
+                    sc.put(sc.acc, pluck(nearest([pc], 45, 38, 52), 0.22, 9.0), tb + k * beat, 0.75)
+                    sc.put(sc.acc, audio.synth("tick", 79 if k % 2 else 74), tb + k * beat + beat * 0.5, 0.10, 0.4)
+                if b % 2 == 1:
+                    for k, d in enumerate((0.5, 0.5, 1.0)):
+                        m = nearest(pcs, 69 + 3 * k, 64, 81)
+                        sc.put(sc.mel, _lead(lead, m, beat * d * 0.5), tb + beat * (1 + 0.5 * k), 0.45, 0.1)
+                continue
+            if mood == "reveal":                                  # tutulan akor + yavaş arpej
+                if b % 1 == 0:
+                    for m in sorted(nearest([pc], 60, 53, 67) for pc in pcs[:3]):
+                        sc.put(sc.acc, reed(m, bar, bright=0.4, att=0.4, rel=0.5), tb, 0.12, -0.2)
+                    sc.put(sc.acc, pluck(nearest([root], 40, 33, 45), bar, 1.5), tb, 0.6)
+                for k in range(4):
+                    m = nearest([pcs[k % len(pcs)]], 72 + 2 * k, 67, 86)
+                    sc.put(sc.mel, _lead(lead, m, beat), tb + k * beat, 0.4, 0.25 * (-1) ** k)
+                continue
+            # bounce / finale / sting'in kalanı: bas 1-3, akor 2-4, ahşap 8'lik, melodi
+            sc.put(sc.acc, pluck(nearest([root], 43, 36, 50), 0.4, 6.0), tb, 0.8)
+            sc.put(sc.acc, pluck(nearest([(root + 7) % 12], 43, 36, 50), 0.4, 6.0), tb + 2 * beat, 0.7)
+            for k in (1, 3):
+                for m in sorted(nearest([pc], 62, 57, 69) for pc in pcs[:3]):
+                    sc.put(sc.acc, audio.synth("pluck", m) * 0.5, tb + k * beat, 0.30, 0.2)
+            for k in range(8):
+                sc.put(sc.acc, audio.synth("tick", 84 if k % 2 == 0 else 80), tb + k * beat / 2, 0.06 if k % 2 else 0.09,
+                       -0.3)
+            rhy = motif[b % 2] if b % 4 < 2 else rng.choice(QRHY)
+            pos, note = 0.0, nearest(pcs, prev + rng.choice((-3, 0, 3, 5)), 67, 84)
+            direction = rng.choice((1, -1))
+            for k, d in enumerate(rhy):
+                if k > 0:
+                    if note >= 82:
+                        direction = -1
+                    elif note <= 69:
+                        direction = 1
+                    if d >= 1:                                    # uzun nota: akor sesi (Re'de takılıyordu)
+                        cands = [m for m in range(note + direction, note + direction * 6, direction)
+                                 if m % 12 in pcs]
+                        note = cands[0] if cands else nearest(pcs, note, 67, 84)
+                    else:                                         # kısa geçiş notası: gam adımı
+                        note = scale_step(note, direction, scale)
+                    note = max(65, min(86, note))
+                sc.put(sc.mel, _lead(lead, note, beat * d * 0.6), tb + pos * beat, 0.5, 0.1)
+                pos += d
+            prev = note
+    end = (int(total / bar) - 1) * bar                            # "ta-da": Do majör akor + yükselen süs
+    if end > 0:
+        for k, m in enumerate((72, 76, 79, 84)):
+            sc.put(sc.mel, _lead(lead, m, beat), end + k * beat * 0.25, 0.5, 0.1)
+        for m in (48, 60, 64, 67, 72):
+            sc.put(sc.acc, pluck(m, 1.6, 1.5), end + beat, 0.4)
+    out = {}
+    for name, buf in (("melody", sc.mel), ("acc", sc.acc)):
+        y = lowpass(buf, 7000)
+        y = y + 0.15 * audio._reverb(y, 1.2, 0.35)
         out[name] = y[:int(total * SR)]
     return out
 
