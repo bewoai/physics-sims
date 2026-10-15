@@ -586,7 +586,7 @@ def e_turn(c, u, dur, ctx):
     c.drawLine(140, top, 140, FLOOR, paint("#BFE6F5", stroke=3))  # 75 cm ölçüsü
     for yy in (top, FLOOR):
         c.drawLine(120, yy, 160, yy, paint("#BFE6F5", stroke=3))
-    _t(ctx, "75 cm", SAFE.left() + 4, 470, 44, "#BFE6F5", BOLD)
+    _t(ctx, "75 cm", SAFE.left() + 4, 840, 40, "#BFE6F5", BOLD)  # cetvelin yanında (başlığın altı kalabalıktı)
     n = 6
     reveal = min(n, int(max(0.0, u - 0.3) / 0.35) + 1)
     for i in range(reveal):                                       # hayalet kareler: yarım tur
@@ -594,10 +594,10 @@ def e_turn(c, u, dur, ctx):
         dx, dy, rot = _fall(k, hgt, 180, 520, slide=260)
         toast(c, dx, top - 18 + dy, rot, 1.1, glow=1.0 if (u > s5 and i == 0) or (u > s6 and i == n - 1) else 0.0)
     _t(ctx, L(ctx, "≈ ½ TURN", "≈ ½ TUR"), 560, 560, 90, AMBER, BLACK, alpha=appear(u, s4), glow=AMBER)
-    if u > s5:
-        _t(ctx, L(ctx, "BUTTER ↑", "YAĞ ↑"), 560, 660, 54, "#FFFFFF", BOLD, alpha=appear(u, s5))
-    if u > s6:
-        _t(ctx, L(ctx, "BUTTER ↓", "YAĞ ↓"), 560, 730, 54, "#FF8A5C", BOLD, alpha=appear(u, s6))
+    if s5 < u < s6:                                               # tek etiket: önce yukarı, sonra aşağı (ikisi birden değil)
+        _t(ctx, L(ctx, "BUTTER ↑", "YAĞ ↑"), 560, 670, 58, "#FFFFFF", BOLD, alpha=appear(u, s5))
+    elif u >= s6:
+        _t(ctx, L(ctx, "BUTTER ↓", "YAĞ ↓"), 560, 670, 58, "#FF8A5C", BOLD, alpha=appear(u, s6))
 
 
 def e_matthews(c, u, dur, ctx):
